@@ -1,0 +1,258 @@
+---
+title: CLI
+hero:
+  tagline: 一个具有扩展性的命令行工具
+  image:
+    alt: Malagu Logo
+    file: ../../../../assets/Malagu_Logo_Green.svg
+sidebar:
+  order: 1
+  label: 介绍
+head:
+  - tag: link
+    attrs:
+      rel: stylesheet
+      href: /styles/hero.css
+---
+
+import { LinkCard, CardGrid } from "@astrojs/starlight/components";
+
+<LinkCard
+  title="安装CLI"
+  description="了解如何安装Malagu CLI，并创建一个全新的Malagu项目。"
+  href="/guides/create"
+/>
+
+Malagu 的命令行工具`@malagu/cli`提供了一些基础的命令，能帮助我们`初始化`、`运行`、`构建`和`部署`项目。该工具只包含最核心的功能，通过命令行插件机制把一些非核心的功能、不同平台部署逻辑通过插件的方式提供，命令行插件也是组件的一种形式。通过插件机制，我们可以为命令行工具`添加新的命令`，或者`扩展老的命令`。在 Malagu 框架中，很多地方都使用到了命令行插件。
+
+命令行工具除了`malagu init`命令以外，其他命令都会委托给当前项目中的`@malagu/service`执行，无需担心全局命令与项目本地命令版本不一致问题。命令行工具基于`npm`和`yarn`进行包的管理，会基于当前项目的环境情况智能选择合适的包管理工具，如果`npm`和`yarn`都满足条件，则优先选择使用`yarn`工具。
+
+例如：当项目根目录下存在`yarn.lock`文件，则使用`yarn`。当然，我们也可以强行指定包管理器，在`malagu.yml`配置`malagu.packager`即可。
+
+## 命令行说明
+
+我们可以通过`malagu -h`命令查看命令行帮助信息，`malagu -h`命令如下：
+
+```
+Usage: malagu <command> [options]
+
+Options:
+  -V, --version                  version for malagu
+  -t, --targets [targets]        targets for malagu
+  -m, --mode [mode]              mode for malagu
+  -h, --help                     display help for command
+
+Commands:
+  init [options] [template]      init a application
+  props [options]                display properties about application
+  info                           display information about application
+  config [options]               configure properties for the application
+  update [options]               update malagu cli and current project's malagu components
+  runtime|r [command] [command]  management runtime
+  serve [options] [entry]        serve a applicaton
+  build [options] [entry]        build a application
+  deploy [options] [entry]       deploy a applicaton
+```
+
+主要包含九个核心命令：
+
+1. **malagu init**： 初始化一个模板应用
+2. **malagu serve**： 本地运行应用
+3. **malagu build**： 构建应用，一般情况不使用，部署应用的时候自动使用该命令构建项目
+4. **malagu deploy**： 部署应用，通过 -s, --skip-build 选项跳过构建过程
+5. **malagu config**： 配置 FaaS 适配器相关的个性信息，例如 AKSK，region 等等。该命令是一个上下文命令，只要满足一定上下文要求才会看到该命令，所有需要在项目根目录执行该命令，并且项目依赖了 FaaS 适配器相关的组件，例如 fc-adapter 、 scf-adapter 等等。
+6. **malagu info**： 查询部署在云端的函数和触发器信息。该命令是一个上下文命令，只要满足一定上下文要求才会看到该命令，所有需要在项目根目录执行该命令，并且项目依赖了 FaaS 适配器相关的组件，例如 fc-adapter 、 scf-adapter 等等。
+7. **malagu props**: 展示当前项目属性等配置信息
+8. **malagu runtime**： 运行时管理
+9. **malagu update**： 一键升级 Malagu cli 和当前项目中 Malagu 相关依赖的版本
+
+## 初始化
+
+我们可以通过`malagu init`命令使用模板，`malagu init`命令如下：
+
+```bash
+Usage: malagu init [options] [template]
+
+init a application
+
+Options:
+  -o, --output-dir [path]  output directory # 该选项也可用于指定项目名称
+  -h, --help               display help for command
+```
+
+### 参数
+
+- `tempate`：应用模板，可选，支持指定`内置模板名称`和`GitHub Repository`地址。如果指定`template`参数，则必须指定应用名称；如果没有指定`template`参数，命令行会提示我们从内置模板中选择一个
+
+### 选项
+
+- `-o,--output-dir`：应用输出的位置，可选，如果不指定该选项，则输出位置为命令行执行时的工作目录。同时，如果想指定项目名称，也可以使用该选项。
+
+### 示例
+
+```bash
+# 不指定名称，从内置模板列表中选择
+$ malagu init
+
+# 指定名称，从内置模板列表中选择
+$ malagu init -o demo
+
+# 指定模板为内置模板
+$ malagu init backend-app
+
+# 指定模板为 GitHub Repository 地址
+$ malagu init git@github.com:cellbang/cellbang-site.git # 或者 malagu init demo https://github.com/cellbang/cellbang-site.git
+```
+
+## 构建
+
+我们可以通过`malagu build`命令构建项目，推荐使用`npx malagu build`构建项目，`malagu build`命令如下：
+
+```
+Usage: build [options] [entry]
+
+build a application
+
+Options:
+  -t, --targets [targets]  Specify application targets (default: [])
+  -m, --mode [mode]        Specify application mode (default: [])
+  -p, --prod [prod]        Create a production build
+  -h, --help               output usage information
+```
+
+### 参数
+
+- `entry`：应用入口文件，可选，一般不需要指定，框架根据当前项目组件依赖情况自动选择合适的应用入口文件
+
+### 选项
+
+- `-t,--targets`：应用构建目标产物，可选，默认值是 ['frontend', 'backend']
+- `-m,--mode`：应用运行模式，可选，框架根据指定模式加载对应的模式配置件，本命令默认开启 remote 模式
+- `-p,--prod`：生产环境标识，可选，简化生产环境构建命令
+
+### 示例
+
+```bash
+# 指定应用构建目标产物
+$ malagu build -t frontend
+
+# 指定单个应用运行模式
+$ malagu build -m test
+
+# 指定多个应用运行模式
+$ malagu build -m cdn,database # 或者 malagu serve demo -m cdn -m database
+
+# 指定生产环境标识
+$ malagu build -p
+```
+
+注意：一般情况，`不需要`手动执行构建命令，因为在`执行部署命令`的时候会自动构建，部署命令可以通过选项`-s, --skip-build`跳过构建过程。如果你不打算使用框架提供的部署命令，此时，你需要自己手动执行构建命令。
+
+不过，当框架提供的部署命令不满足你的业务需要，更推荐的做法是通过提供一个命令[`[Deploy]`]()插件，自定义部署逻辑。
+
+## 部署
+
+我们可以通过`malagu deploy`命令部署项目，使用部署命令时，需要指定部署的平台，比如需要部署到`腾讯云函数`，可以通过`malagu deploy -m scf`，部署到`阿里云函数计算`则指定`mode`为`fc`即可，具体可参考[云平台适配]()。
+
+推荐使用`npx malagu deploy`部署项目，`malagu deploy`命令如下：
+
+```bash
+Usage: deploy [options] [entry]
+
+deploy a applicaton
+
+Options:
+  -t, --targets [targets]       Specify application targets (default: [])
+  -m, --mode [mode]             Specify application mode (default: [])
+  -p, --prod [prod]             Create a production deployment
+  -s, --skip-build [skipBuild]  Skip the build process
+  -h, --help
+```
+
+### 参数
+
+`entry`：应用入口文件，可选，一般不需要指定，框架根据当前项目组件依赖情况自动选择合适的应用入口文件
+
+### 选项
+
+- `-t,--targets`：应用构建目标产物，可选，默认值是 ['frontend', 'backend']
+- `-m,--mode`： 应用运行模式，可选，框架根据指定模式加载对应的模式配置件，本命令默认开启 remote 模式
+- `-p,--prod`： 生产环境标识，可选，简化生产环境构建命令
+- `-s,--skip-build`：跳过构建过程，可选，默认不跳过，部署的时候，构建过程没有问题，但是部署出现了网络问题，这个时候，可以跳过构建过程直接部署
+
+### 示例
+
+```bash
+# 指定应用构建目标产物
+$ malagu deploy -t frontend
+
+# 指定单个应用运行模式
+$ malagu deploy -m test
+
+# 指定多个应用运行模式
+$ malagu deploy -m cdn,database # 或者 malagu serve demo -m cdn -m database
+
+# 指定生产环境标识
+$ malagu deploy -p
+
+# 跳过构建过程
+$ malagu deploy -s
+```
+
+## 插件
+
+命令行工具包含最核心的功能，通过`命令行插件机制`把一些`非核心的功能`、`不同平台部署逻辑`通过`插件`的方式提供。
+
+命令行插件`也是组件的一种形式`。通过插件机制，我们可以为命令行工具`添加新的命令`，或者`扩展老的命令`。在 Malagu 框架中，很多地方都使用到了命令行 Hook。
+
+<CardGrid>
+
+<LinkCard
+  title="CLI插件"
+  description="了解如何撰写Malagu CLI插件。"
+  href="/main/cli/hook/#cli-插件"
+/>
+
+<LinkCard
+  title="Webpack插件"
+  description="了解如何撰写Malagu Webpack插件。"
+  href="/maincli/hook/#webpack-插件"
+/>
+
+<LinkCard
+  title="Deploy插件"
+  description="了解如何撰写Malagu Deploy插件。"
+  href="/main/cli/hook/#deploy-插件"
+/>
+
+<LinkCard
+  title="Build插件"
+  description="了解如何撰写Malagu Build插件。"
+  href="/main/cli/hook/#build-插件"
+/>
+
+<LinkCard
+  title="Serve插件"
+  description="了解如何撰写Malagu Serve插件。"
+  href="/main/cli/hook/#serve-插件"
+/>
+
+<LinkCard
+  title="Config插件"
+  description="了解如何撰写Malagu Config插件。"
+  href="/main/cli/hook/#config-插件"
+/>
+
+<LinkCard
+  title="Info插件"
+  description="了解如何撰写Malagu Info插件。"
+  href="/main/cli/hook/#info-插件"
+/>
+
+<LinkCard
+  title="Init插件"
+  description="了解如何撰写Malagu Init插件。"
+  href="/main/cli/hook/#init-插件"
+/>
+
+</CardGrid>

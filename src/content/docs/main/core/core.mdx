@@ -1,0 +1,28 @@
+---
+title: 核心
+hero:
+  tagline: Core、Web、MVC等核心包的详细文档
+  image:
+    alt: Malagu Logo
+    file: ../../../../assets/malagu_core.png
+head:
+  - tag: link
+    attrs:
+      rel: stylesheet
+      href: /styles/hero.css
+---
+
+import { LinkCard, CardGrid } from "@astrojs/starlight/components";
+
+<CardGrid>
+  <LinkCard
+    title="依赖注入"
+    description="了解如何使用Malagu IOC依赖注入撰写和解藕代码。"
+    href="/zh-cn/guides/customization/"
+  />
+  <LinkCard
+    title="Web"
+    description="在Malagu IOC依赖注入的基础上，撰写Web接口。"
+    href="/zh-cn/guides/customization/"
+  />
+</CardGrid>

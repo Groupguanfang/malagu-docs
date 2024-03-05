@@ -1,0 +1,52 @@
+---
+title: Malagu 运行时
+sidebar:
+  order: 4
+---
+
+Malagu 目前已经提供了 `50+ 组件`，我们可以通过 package.json 自由组合需要的组件。要保证组件的正交性和高度复用性，组件职责会相对比较单一，这样会导致组件越来越多，当然随着功能的增加，也会导致组件变多，随之组件组合关系会变得很复杂。
+
+组件组合是把双刃剑，带来灵活性的同时，往往也伴随着复杂性。能否保证灵活性不丧失的情况下，又能极大简化组合关系的复杂性呢？这里就用到了`Malagu运行时机制`。
+
+`Malagu 运行时`本质就是一堆预先定义好的模式配置文件。这些模式配置文件把组件的组合关系按照各种常用的使用场景组合在一起。这样，我们就可以通过简单指定特定模式就能使用运行时中的组件组合关系。
+
+框架目前内置了一个默认的运行时，名字叫`default`。我们也可以定义自己的运行时，自己定义好的运行时需要先安装，然后再使用。Malagu 提供了一个`malagu runtime`命令用于管理所有的运行时。
+
+```bash
+malagu runtime -h
+Usage: malagu runtime|r [options] [command] [command] [command]
+
+management runtime
+
+Options:
+  -h, --help                             display help for command
+
+Commands:
+  install|i [options] [runtime] [alias]  install a runtime
+  use [runtime]                          use a runtime
+  list|ls                                list all runtimes
+  uninstall|u [runtime]                  uninstall a runtime
+```
+
+安装完后的使用方式有两种：
+
+- 通过命令行参数全局指定默认运行时：`malagu runtime use xxxx`。
+- 也可以通过属性配置文件指定运行时，优先级比全局默认运行时高。如下：`runtime: xxxx`
+
+通过运行时，我们可以把一些与业务代码无直接引用的组件安装到全局目录中，让所有应用项目共享。从而避免不同项目重复下载这些组件依赖。
+
+对于一些非 Node.js 项目，通过运行时仍然可以继续使用组件，但是无需使用 package.json 在项目中声明。而是在属性配置文件中，通过如下方式安装并激活运行时全局组件：
+
+```yml
+# malagu.yml
+# malagu.yml 配置文件
+components:
+  "@malagu/serve-static": ${version}
+devComponents:
+  "@malagu/cli-service": ${version}
+  "@malagu/static-plugin": ${version}
+```
+
+其中的版本一般情况下是占位符，Malagu 会根据`项目依赖的版本`或者`命令行版本`计算出`当前的版本`，并`回填到这里`，然后通过 yarn 等包管理工具进行安装。components 和 devComponenets 分别对应着 package.json 中的 `dependencies` 和 `devDependencies`。
+
+相对于 package.json 这种配置方式，属性文件配置方式更加灵活多变。可以将依赖的组件分散在不同的配置文件中，然后通过模式来激活并`动态组装`在一起。

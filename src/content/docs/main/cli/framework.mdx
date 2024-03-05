@@ -1,0 +1,175 @@
+---
+title: 框架适配
+---
+
+## 智能框架适配
+
+Malagu 命令行是对应用的开发、调试、运行、构建、部署等全生命周期的管理，是一套统一、标准化的研发流程规范。Malagu 命令行工具不仅仅对 Malagu 应用框架适用，`NestJS`、`Koa`、`ExpressJS`、`React`、`Vue`、`Vite`、`Angular`、`Svelte`、`H5`、`Preact`、`NextJS`、`NuxtJS`、`UmiJS`、`flet`等等框架都可以使用 Malagu 命令行工具管理应用的全生命周期。理论上是可以适配任意语言、任意应用开发框架。
+
+Malagu 智能框架适配能力本质是基于组件实现。Malagu 提供了一个框架适配组件`@malagu/frameworks`。该组件会根据当前项目内容匹配到的适配规则运行个性化地调试、运行、构建、部署等操作。对于主流的开发框架，Malagu 一般会默认提供适配规则，对于识别到的框架，我们可以使用 Malagu 命令行工具进行调试、运行、构建、部署等各种 Malagu 标准命令行操作。
+
+对于识别到的框架，在执行命令的时候会显示框架的名字，格式如下：`Runtime<框架名>`。示例如下：
+
+```bash {12}
+ /'\_/`\          /\_ \
+/\      \     __  \//\ \      __       __   __  __
+\ \ \__\ \  /'__`\  \ \ \   /'__`\   /'_ `\/\ \/\ \
+ \ \ \_/\ \/\ \L\.\_ \_\ \_/\ \L\.\_/\ \L\ \ \ \_\ \
+  \ \_\\ \_\ \__/.\_\/\____\ \__/.\_\ \____ \ \____/
+   \/_/ \/_/\/__/\/_/\/____/\/__/\/_/\/___L\ \/___/
+                                       /\____/
+                   @malagu/cli@2.40.1  \_/__/
+
+╭──────────────────────────────────────────────────╮
+│      Serverless First Development Framework      │
+│                 Runtime<nextjs>                  │
+╰──────────────────────────────────────────────────╯
+```
+
+## 新框架适配
+
+当我们发现某个好用的框架，Malagu 并没有适配的时候，我们可以通过 PR 的方式提交到 Malagu 框架的代码仓库上来。框架的适配规则很简单，我们可以参加 Malagu 默认提供的适配规则。示例如下：
+
+```typescript
+export const frameworks = [
+  // frontend
+  {
+    name: "nextjs",
+    useRuntime: "default",
+    useMode: ["unpackage", "node", "next"],
+    settings: {
+      "buildCommand:before": "npx next build",
+      serveCommand: "npx next dev --port $PORT",
+    },
+    detectors: {
+      every: [
+        {
+          path: "package.json",
+          matchContent:
+            '"(dev)?(d|D)ependencies":\\s*{[^}]*"next":\\s*".+?"[^}]*}',
+        },
+      ],
+    },
+  },
+  {
+    name: "create-react-app",
+    useRuntime: "default",
+    useMode: ["static"],
+    settings: {
+      outputDir: "build",
+      serveCommand: "npx react-scripts start",
+      "buildCommand:before": "npx react-scripts build",
+    },
+    detectors: {
+      some: [
+        {
+          path: "package.json",
+          matchContent:
+            '"(dev)?(d|D)ependencies":\\s*{[^}]*"react-scripts":\\s*".+?"[^}]*}',
+        },
+        {
+          path: "package.json",
+          matchContent:
+            '"(dev)?(d|D)ependencies":\\s*{[^}]*"react-dev-utils":\\s*".+?"[^}]*}',
+        },
+      ],
+    },
+  },
+  {
+    name: "vue",
+    useRuntime: "default",
+    useMode: ["static"],
+    settings: {
+      outputDir: "dist",
+      serveCommand: "npx vue-cli-service serve --port $PORT",
+      "buildCommand:before": "npx vue-cli-service build",
+    },
+    detectors: {
+      every: [
+        {
+          path: "package.json",
+          matchContent:
+            '"(dev)?(d|D)ependencies":\\s*{[^}]*"@vue\\/cli-service":\\s*".+?"[^}]*}',
+        },
+      ],
+    },
+  },
+  {
+    name: "vite",
+    useRuntime: "default",
+    useMode: ["static"],
+    settings: {
+      outputDir: "dist",
+      serveCommand: "npx vite --port $PORT",
+      "buildCommand:before": "npx vite build --base $PATH",
+    },
+    detectors: {
+      every: [
+        {
+          path: "package.json",
+          matchContent:
+            '"(dev)?(d|D)ependencies":\\s*{[^}]*"vite":\\s*".+?"[^}]*}',
+        },
+      ],
+    },
+  },
+  {
+    name: "angular",
+    useRuntime: "default",
+    useMode: ["static"],
+    settings: {
+      outputDir: "dist/${pkg.name}",
+      serveCommand: "npx ng serve --disable-host-check --port $PORT",
+      "buildCommand:before": "npx ng build --base-href $PATH",
+    },
+    detectors: {
+      every: [
+        {
+          path: "package.json",
+          matchContent:
+            '"(dev)?(d|D)ependencies":\\s*{[^}]*"@angular\\/cli":\\s*".+?"[^}]*}',
+        },
+      ],
+    },
+  },
+  // backend
+  {
+    name: "nest",
+    useRuntime: "default",
+    useMode: ["node", "unpackage"],
+    settings: {},
+    detectors: {
+      every: [
+        {
+          path: "package.json",
+          matchContent:
+            '"dependencies":\\s*{[^}]*"@nestjs\\/core":\\s*".+?"[^}]*}',
+        },
+      ],
+    },
+  },
+];
+```
+
+对于一些特殊的框架，我们也可以直接基于`malagu.yml`来配置相关的规则。或者我们也可以通过配置命令指定我们自己的框架适配规则源地址。如下所示：
+
+```bash
+# 查看 malagu config 帮助
+malagu config -h
+Usage: malagu config [options]
+
+configure properties for the application
+
+Options:
+  --default-runtime [defaultRuntime]                 default runtime
+  --default-mode [defaultMode]                       default mode
+  --frameworks-url [frameworksUrl]                   frameworks url
+  --frameworks-upstream-url [frameworksUpStreamUrl]  frameworks upstream url
+  --config-file-alias [configFileAlias]              config file alias
+  --show [show]                                      show properties for the application
+  -h, --help                                         display help for command
+
+# 指定自己的框架适配规则配置所在的 URL，其中 --frameworks-upstream-url 是指定上游的地址，
+# 下游适配不上，会继续从上游找。
+malagu config --frameworks-url https://abc.com
+```

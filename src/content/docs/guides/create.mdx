@@ -1,0 +1,178 @@
+---
+title: 快速创建项目
+description: 这篇教程会详细讲述如何使用@malagu/cli创建一个全新的Malagu项目。
+sidebar:
+  order: 2
+---
+
+![完整体验](https://malagu.cellbang.com/static/MalaguFull.babce1da.gif)
+
+首先得有`node`和`npm`/`yarn`，malagu 对`pnpm`的支持还不是特别的好，建议先使用`yarn`等代替。
+
+## 安装命令行工具
+
+安装好`node`之后即可开始安装命令行工具。
+
+Malagu 提供了一个很强大的命令行工具 @malagu/cli ，设计思路部分借鉴了 @vue/cli 。我们的应用初始化、运行、构建和部署等等操作都是基于该命令行工具完成。
+
+Malagu 框架是 Typescript 语言开发，所以框架包发布在 NPM 官方。我们只需要执行如下命令既可以安装 Malagu 命令行工具：
+
+```bash
+npm install -g @malagu/cli
+```
+
+安装完成后，我们可以执行如下命令验证是否安装成功：
+
+```
+$ malagu
+
+                   ___
+ /'\_/`\          /\_ \
+/\      \     __  \//\ \      __       __   __  __
+\ \ \__\ \  /'__`\  \ \ \   /'__`\   /'_ `\/\ \/\ \
+ \ \ \_/\ \/\ \L\.\_ \_\ \_/\ \L\.\_/\ \L\ \ \ \_\ \
+  \ \_\\ \_\ \__/.\_\/\____\ \__/.\_\ \____ \ \____/
+   \/_/ \/_/\/__/\/_/\/____/\/__/\/_/\/___L\ \/___/
+                                       /\____/
+                   @malagu/cli@2.40.1  \_/__/
+
+╭──────────────────────────────────────────────────╮
+│      Serverless First Development Framework      │
+╰──────────────────────────────────────────────────╯
+
+Usage: malagu <command> [options]
+
+Options:
+  -V, --version                          version for malagu
+  -t, --targets [targets]                targets for malagu
+  -m, --mode [mode]                      mode for malagu
+  --props-dir [propsDir]                 props directory for malagu
+  --props-file [propsFile]               props file for malagu
+  --skip-auto-install [skipAutoInstall]  skip automatic installation of components for malagu
+  -h, --help                             display help for command
+
+Commands:
+  init [options] [template]              init a application
+  serve [options]                        serve a applicaton
+  build                                  build a application
+  deploy [options]                       deploy a applicaton
+  props [options]                        display properties about application
+  info                                   display information about application
+  config [options]                       configure properties for the application
+  update [options]                       update malagu cli and current project's malagu components
+  runtime|r [command] [command]          management runtime
+
+Use "malagu [command] --help" for more information about a command.
+```
+
+malagu 根命令与 malagu --help 是等价的。
+
+## 创建第一个应用
+
+命令行工具安装成功后，我们就可以使用命令行工具提供的应用模板初始化命令：malagu init 快速创建一个 Malagu 项目。其中，通过命令行参数或选项指定模板和输出位置。如果没有指定模板，则会提示让我们选择一个内置的模板。模板除了指定内置的模板以外，还可以指定一个 git 仓库地址，Malagu 框架会尝试把该仓库克隆下来（只会克隆第一层）。我们可以把自己的业务项目做成一个模板，提供给团队其他成员使用。
+
+初始化模板命令说明如下：
+
+```
+Usage: malagu init [options] [template]
+
+init a application
+
+Options:
+  -o, --output-dir [path]   output directory
+  -p --packager [packager]  package manager(pnpm, yarn, npm)
+  -h, --help                display help for command
+```
+
+示例如下：
+
+```bash
+malagu init                    # 在当前目录下，提示选择一个内置模板进行初始化
+malagu init -o foo/bar         # 将初始化模板输出到指定位置：当前目录下的 foo/bar
+malagu init -p yarn            # 指定使用 yarn 工具安装模板中声明的依赖项
+malagu init backend-app        # 指定使用 backend-app 内置模板进行初始化
+malagu init https://github.com/foo/bar.git  # 指定使用 git 代码仓库作为模板进行初始化
+```
+
+Malagu 框架提供了一些的内置模板，包括：后端应用、前后端一体化应用、定时任务调度应用、微服务应用、数据库访问应用等等。当我们没有指定模板的情况下，初始化命令会列出所以的模板供我们选择。如下所示：
+
+```
+? Select a template to init (Use arrow keys or type to search)
+❯ backend-app Official
+  sample-app Official
+  malagu-component Official
+  nest-app Official
+  nextjs-app Official
+  koa-app Official
+  vue-app Official
+  database-app Official
+  jwt-app Official
+  accounts Official
+  schedule Official
+  admin-app Official
+(Move up and down to reveal more choices)
+```
+
+上面列出的应用模板，大多代码比较简单，所以都是一些偏入门的模板。这么设计的主要目的是不想给新用户设置过多门槛。业务模板不建议设置为内置模版，可以保存在代码仓库，作为外置模板形式存在。
+
+启动项目，直接运行：
+
+```bash
+malagu serve
+```
+
+即可开始开发。
+
+## 快速部署上线
+
+首次部署会提示输入相关云平台 Ak 信息。
+
+```bash
+malagu deploy -m scf # 部署到腾讯云云函数（SCF）
+malagu deploy -m fc # 部署到阿里云函数计算（FC）
+malagu deploy -m lambda # 部署到 AWS Lambda
+```
+
+## 升级命令行工具
+
+当我们的 Malagu 框架版本落后于最新稳定版，我们可以方便的升级 Malagu 框架。Malagu 的升级主要包含两个部分：
+
+- Malagu 命令行工具的升级；
+- Malagu 应用所依赖的 Malagu 应用框架的升级。
+- Malagu 命令行工具提供了一个命令：malagu update，使用该命令可以一键升级命令行工具和 Malagu 应用框架（必须是在具体的某个 Malagu 应用的根目录）。默认该命令会帮我们升级到 Malagu 框架最新稳定版。我们也通过命令选择指定升级的版本。命令说明如下：
+
+```
+Usage: malagu update [options]
+
+update malagu cli and current project's malagu components
+
+Options:
+  -v, --version [version]                                   version for malagu
+  -d, --dist-tag [distTag]                                  Which dist-tag to use to find the latest version
+  -s, --skip-installing-component [skipIntallingComponent]  skip installing components
+  -h, --help
+```
+
+示例如下：
+
+```bash
+malagu update             # 更新到最新的 latest 版本
+malagu update -v 2.0.0    # 更新到指定版本
+malagu update -d next     # 更新到最新的 next 版本
+```
+
+除此之外，我们仍然可以使用传统的方式更新命令行工具和框架依赖。更新命令行工具如下所示：
+
+```bash
+npm i -g @malagu/cli
+```
+
+## 版本管理最佳实践
+
+为了确保 Malagu 不同组件彼此组合之间的稳定性，Malagu 采用所有组件统一版本的模式管理版本。也就是说我们在依赖 Malagu 官方组件的时候，需要指定统一的明确版本，不能使用`"@malagu/core": "^2.0.0"`这样的模糊版本。必须使用`"@malagu/core": "2.0.0"`这样的精确版本。这样的版本设计看似死板，但是会带来很多好处：
+
+- 统一版本，让使用更加简单，无需考虑不同组件版本之间的`兼容性`，对于框架维护者也一样，减少了不同组件版本之间兼容性测试与文档说明。
+- 应用依赖的框架版本自动化升级实现更为简单和安全，如：`malagu update`。
+- Malagu 运行时所用到的全局组件版本管理更为简单安全。
+
+当我们自定义组件的时候，如果依赖了 Malagu 官方基础组件，建议使用`Peer依赖`方式依赖组件的版本范围，让开发者在使用的时候，自行指定具体依赖的 Malagu 官方基础组件的明确版本。

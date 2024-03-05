@@ -1,0 +1,416 @@
+---
+title: CLI扩展
+sidebar:
+  order: 3
+---
+
+Malagu 命令行工具提供了一些列扩展点，可以让我们在不同阶段干预默认处理逻辑。比如我们前面提到 `Build Hook`、`Deploy Hook`。除了这些，Malagu 还提供更多的 Hook，具体如下：
+
+- Init Hook：在执行`malagu init`的时候被执行，用于扩展`malagu init`命令。
+- Serve Hook：在执行`malagu serve`的时候被执行，用于实现`应用在开发态运行逻辑`。
+- Build Hook：在执行`malagu build`的时候被执行，用于实现`应用构建逻辑`。
+- Compile Hook：在执行`malagu build`和`malagu serve`的时候被执行，用于实现`应用编译逻辑`。
+- Deploy Hook：在执行`malagu deploy`的时候被执行，用于实现`应用部署逻辑`。
+- Webpack Hook：在执行命令中需要基于 Webpack 编译代码的时候被执行，用于扩展`默认 Webpack 编译配置`。
+- Config Hook：在执行`malagu config`的时候被执行，用于扩展`框架配置逻辑`。
+- Info Hook：在执行`malagu info`的时候被执行，用于扩展 Malagu `查看应用信息逻辑`。
+- Props Hook：在执行命令中需要计算应用属性的时候被执行，用于扩展`计算后的属性配置`。
+- Cli Hook：当 Malagu 提供的命令不满足业务场景的时候，可以通过该 Hook `扩展更多命令或者选项`。
+
+其中，`Webpack Hook` 和 `Cli Hook` 我们可能用得最多。比如发现默认提供的 Webpack 配置不满足需求，可以通过 Webpack Hook 在原有的配置上，自定义配置。
+
+而 Cli Hook 可以帮助我们提供自定义命令，或者扩展已有命令的参数或者选项，当该组件激活的时候，我们可以通过 malagu --help 查看我们扩展的命令。扩展的命令又称为上下文命令，该命令会根据上下文情况，决定有哪些上下文命令，和上下文菜单的理念类似。
+
+除了 Hook 的方式扩展命令行工具以外，Malagu 命令行工具还提供一种属性配置的方式，配置不同命令执行前后的钩子。
+
+配置实例如下：
+
+```yml
+# malagu.yml
+mode: static
+serveCommand: npm run start
+buildCommand:before: npm run build
+```
+
+## CLI 插件
+
+执行`malagu`命令的时候，执行该插件。通过`Cli插件`，我们可以为命令行工具`添加新的命令`，或者`扩展老的命令`。这是一个自由度非常高的一个插件，比如使用 Cli 插件添加一个新命令： ​
+
+```typescript
+import { CliContext } from "@malagu/cli-service";
+
+export default async (context: CliContext) => {
+  const { program } = context;
+  program
+    .command("login")
+    .description("Sign in to the app")
+    .action(() => {
+      console.log("login");
+    });
+};
+```
+
+插件代码存放到项目目录`src/cli-hook.ts`或者`src/hooks/cli.ts`，框架自动识别加载，也可以通过属性`cliHooks`自定义其他目录位置。
+
+通过命令行上下文，我们可以取到一下相关信息：
+
+- `program`：命令行对象，通过该对象可以获取命令相关信息
+- `pkg`：应用程序包，通过该对象可以获取应用程序包相关信息，例如应用版本、应用名称、应用包含的组件等等信息
+- `cfg`：应用配置信息，通过该对象可以获取应用配置信息，该应用的配置信息为所有组件属性聚合并计算了表达式以后的值。框架也提供了一些关于应用配置相关的工具方法：
+- `getConfig`：根据 target 获取前端或者后端配置
+- `getMalaguConfig`：根据 target 获取前端或者后端 malagu 配置
+- `getWebpackConfig`：根据 target 获取前端或者后端 webpack 配置
+- 其他信息，执行不同命令，参数是不一样的，该上下文也会把命令的参数放进来，例如`Serve`插件的上下文中，包含了`port`、`open`、`dev`等信息
+
+## Webpack 插件
+
+执行`malagu`命令需要`Webpack`构建的时候，执行该插件。通过`Webpack`插件，我们可以自定义 Webpack 构建行为，我们也可以通过`malagu.yml`中的`malagu.webpack`属性配置 Webpack，但是，对于一些自由度比较高的配置，Webpack 插件方式更加适合。
+
+比如使用 Webpack 插件添加一个 Webpack 自己的插件：
+
+```typescript
+import { WebpackContext, ConfigurationContext } from "@malagu/cli-service";
+
+export default async (context: WebpackContext) => {
+  const { configurations } = context;
+  const config = ConfigurationContext.getFrontendConfiguration(configurations);
+  if (config) {
+    const { VueLoaderPlugin } = require("vue-loader");
+
+    // prettier-ignore
+    config.module
+      .rule("vue")
+        .test(/\.vue$/)
+        .use("vue-loader")
+          .loader("vue-loader")
+        .end()
+      .end()
+        .rule("css")
+        .test(/\.css$/)
+        .use("vue-style-loader")
+          .loader("vue-style-loader")
+        .end()
+        .use("css-loader")
+        .loader("css-loader");
+    config.plugin("vueLoader").use(VueLoaderPlugin);
+  }
+};
+```
+
+插件代码存放到项目目录 `src/webpack-hook.ts` 或者 `src/hooks/webpack.ts` ，框架自动识别加载，也可以通过属性 `webpackHooks` 自定义其他目录位置。
+
+通过命令行上下文，我们可以取到一下相关信息：
+
+- `configurations`：Webpack 配置对象，与 `getWebpackConfig` 不同，`getWebpackConfig` 获取的是组件属性中的 `malagu.webpack`
+- `program`：命令行对象，通过该对象可以获取命令相关信息
+- `pkg`：应用程序包，通过该对象可以获取应用程序包相关信息，例如应用版本、应用名称、应用包含的组件等等信息
+- `cfg`：应用配置信息，通过该对象可以获取应用配置信息，该应用的配置信息为所有组件属性聚合并计算了表达式以后的值。框架也提供了一些关于应用配置相关的工具方法：
+  - `getConfig`：根据 `target` 获取前端或者后端配置
+  - `getMalaguConfig`：根据 `target` 获取前端或者后端 `malagu` 配置
+  - `getWebpackConfig`：根据 `target` 获取前端或者后端 `webpack` 配置
+- 其他信息，包含了`prod` 、 `mode` 、 `targets` 、 `dev` 、`entry` 等信息
+
+## Deploy 插件
+
+执行 `malagu deploy` 命令的时候，执行该插件。通过 `Deploy` 插件，我们可以自定义部署行为。比如使用 `Deploy` 插件实现项目部署到函数计算平台：
+
+```typescript
+export default async (context: DeployContext) => {
+  const { cfg } = context;
+
+  const deployConfig = getMalaguConfig(cfg, BACKEND_TARGET)["faas-adapter"];
+
+  const profileProvider = new ProfileProvider();
+  profile = {
+    ...(await profileProvider.provide()),
+    ...deployConfig.profile,
+  };
+
+  const regions = deployConfig.regions || [profile.defaultRegion];
+  for (region of regions) {
+    await doDeploy(context, deployConfig);
+  }
+};
+```
+
+插件代码存放到项目目录 `src/deploy-hook.ts` 或者 `src/hooks/deploy.ts` ，框架自动识别加载，也可以通过属性 `deployHooks` 自定义其他目录位置。
+
+通过命令行上下文，我们可以取到一下相关信息：
+
+- `configurations` Webpack 配置对象，与 `getWebpackConfig` 不同，`getWebpackConfig` 获取的是组件属性中的 `malagu.webpack`
+- `program` 命令行对象，通过该对象可以获取命令相关信息
+- `pkg` 应用程序包，通过该对象可以获取应用程序包相关信息，例如应用版本、应用名称、应用包含的组件等等信息
+- `cfg` 应用配置信息，通过该对象可以获取应用配置信息，该应用的配置信息为所有组件属性聚合并计算了表达式以后的值。框架也提供了一些关于应用配置相关的工具方法：
+  - `getConfig` 根据 `target` 获取前端或者后端配置
+  - `getMalaguConfig` 根据 `target` 获取前端或者后端 `malagu` 配置
+  - `getWebpackConfig` 根据 `target` 获取前端或者后端 `webpack` 配置
+- 其他信息， 包含了 `prod` 、 `mode` 、 `targets` 、 `dev` 、`entry`  等信息
+
+## Build 插件
+
+执行 `malagu build` 命令的时候，执行该插件。通过 `Build` 插件，我们可以自定义构建行为。比如使用 `Build` 插件实现项目为部署到函数计算平台 `custom`  运行时，而生成 `bootstrap`  启动文件：
+
+```typescript
+import { BuildContext, getHomePath } from "@malagu/cli-service";
+import { join } from "path";
+import { writeFile } from "fs-extra";
+import { FaaSAdapterUtils } from "@malagu/faas-adapter/lib/hooks";
+
+export default async (context: BuildContext) => {
+  const { pkg, cfg } = context;
+  const adapterConfig = FaaSAdapterUtils.getConfiguration<any>(cfg);
+  if (adapterConfig.type === "custom") {
+    const destDir = join(getHomePath(pkg), "bootstrap");
+    const bootstrap = adapterConfig.function.bootstrap;
+    delete adapterConfig.function.bootstrap;
+
+    await writeFile(destDir, `#!/bin/bash\n${bootstrap}`, { mode: 0o755 });
+  }
+};
+```
+
+插件代码存放到项目目录 `src/build-hook.ts` 或者 `src/hooks/build.ts` ，框架自动识别加载，也可以通过属性 `buildHooks` 自定义其他目录位置。
+
+通过命令行上下文，我们可以取到一下相关信息：
+
+- `configurations` Webpack 配置对象，与 `getWebpackConfig` 不同，`getWebpackConfig` 获取的是组件属性中的 `malagu.webpack`
+- `program` 命令行对象，通过该对象可以获取命令相关信息
+- `pkg` 应用程序包，通过该对象可以获取应用程序包相关信息，例如应用版本、应用名称、应用包含的组件等等信息
+- `cfg` 应用配置信息，通过该对象可以获取应用配置信息，该应用的配置信息为所有组件属性聚合并计算了表达式以后的值。框架也提供了一些关于应用配置相关的工具方法：
+  - `getConfig` 根据 `target` 获取前端或者后端配置
+  - `getMalaguConfig` 根据 `target` 获取前端或者后端 `malagu` 配置
+  - `getWebpackConfig` 根据 `target` 获取前端或者后端 `webpack` 配置
+- 其他信息， 包含了 `prod` 、 `mode` 、 `targets` 、 `dev` 、`entry` 等信息
+
+## Serve 插件
+
+执行 `malagu serve` 命令的时候，执行该插件。通过 `Serve` 插件，我们可以自定义本地运行行为。比如使用 `Serve` 插件实现基于 Webpack Dev Server 的本地运行：
+
+```typescript
+import { ServeContext } from "@malagu/cli-service";
+import * as express from "express";
+export class Deferred<T> {
+  resolve: (value?: T) => void;
+  reject: (err?: any) => void; // tslint:disable-line
+
+  promise = new Promise<T>((resolve, reject) => {
+    this.resolve = resolve;
+    this.reject = reject;
+  });
+}
+export default async (context: ServeContext) => {
+  const { app, entryContextProvider } = context;
+  app.use(express.json());
+  app.use(express.raw());
+  app.use(express.text());
+  app.use(express.urlencoded({ extended: true }));
+  let doDispatch: (req: any, res: any) => void;
+  const compileDeferred = new Deferred<void>();
+
+  context.compiler.hooks.done.tap("WebServe", () => {
+    entryContextProvider().then(async (ctx: any) => {
+      const {
+        Dispatcher,
+        Context,
+        HttpContext,
+        ContainerProvider,
+        Application,
+        container,
+      } = ctx;
+      const c = await container;
+      ContainerProvider.set(c);
+      await c.get(Application).start();
+      const dispatcher = c.get(Dispatcher);
+      doDispatch = (req: any, res: any) => {
+        const httpContext = new HttpContext(req, res);
+        Context.run(() => dispatcher.dispatch(httpContext));
+      };
+      compileDeferred.resolve();
+    });
+  });
+
+  app.all("*", async (req: any, res: any) => {
+    await compileDeferred.promise;
+    doDispatch(req, res);
+  });
+};
+```
+
+插件代码存放到项目目录 `src/serve-hook.ts` 或者 `src/hooks/serve.ts` ，框架自动识别加载，也可以通过属性 `serveHooks` 自定义其他目录位置。
+
+通过命令行上下文，我们可以取到一下相关信息：
+
+- `server` http 的 Server 对象
+- `app` 基础框架应用对象，例如 Express 的 Application 对象
+- `compiler` Webpack 的编译对象
+- `entryContextProvider` 通过入口文件提供上下文的方法，通过该异步方法可以获取启动 Malagu 应用需要的上下文
+- `configurations` Webpack 配置对象，与 `getWebpackConfig` 不同，`getWebpackConfig` 获取的是组件属性中的 `malagu.webpack`
+- `program` 命令行对象，通过该对象可以获取命令相关信息
+- `pkg` 应用程序包，通过该对象可以获取应用程序包相关信息，例如应用版本、应用名称、应用包含的组件等等信息
+- `cfg` 应用配置信息，通过该对象可以获取应用配置信息，该应用的配置信息为所有组件属性聚合并计算了表达式以后的值。框架也提供了一些关于应用配置相关的工具方法：
+  - `getConfig` 根据 `target` 获取前端或者后端配置
+  - `getMalaguConfig` 根据 `target` 获取前端或者后端 `malagu` 配置
+  - `getWebpackConfig` 根据 `target` 获取前端或者后端 `webpack` 配置
+- 其他信息，包含了 `port` 、 `open` 、 `dev` 等信息
+
+## Config 插件
+
+框架在应用配置计算表达式之前，执行该插件。通过 `Config`  插件，我们可以动态添加一些特殊的应用配置。比如使用 `Config` 插件为应用配置动态添加阿里云账号 ID：
+
+```typescript
+import { ConfigContext } from "@malagu/cli-common";
+import {
+  DefaultProfileProvider,
+  FaaSAdapterUtils,
+  FaaSAdapterConfiguration,
+} from "@malagu/faas-adapter/lib/hooks";
+
+export default async (context: ConfigContext) => {
+  const { config, cfg } = context;
+  if (config.mode && config.mode.includes("remote")) {
+    context.spinner?.stop();
+    const adapterConfig =
+      FaaSAdapterUtils.getConfiguration<FaaSAdapterConfiguration>(cfg);
+    const profileProvider = new DefaultProfileProvider();
+    const profile = await profileProvider.provide(adapterConfig);
+    const faasAdapter = config.malagu["faas-adapter"];
+    if (!faasAdapter.account?.id) {
+      faasAdapter.account = profile.account;
+    }
+    if (!faasAdapter.region) {
+      faasAdapter.region = profile.region;
+    }
+  }
+};
+```
+
+插件代码存放到项目目录 `src/config-hook.ts` 或者 `src/hooks/config.ts` ，框架自动识别加载，也可以通过属性 `configHooks` 自定义其他目录位置。
+
+通过命令行上下文，我们可以取到一下相关信息：
+
+- `config` 应用配置对象
+- `program` 命令行对象，通过该对象可以获取命令相关信息
+- `pkg` 应用程序包，通过该对象可以获取应用程序包相关信息，例如应用版本、应用名称、应用包含的组件等等信息
+- `cfg` 应用配置信息，通过该对象可以获取应用配置信息，该应用的配置信息为所有组件属性聚合并计算了表达式以后的值。框架也提供了一些关于应用配置相关的工具方法：
+  - `getConfig` 根据 `target` 获取前端或者后端配置
+  - `getMalaguConfig` 根据 `target` 获取前端或者后端 `malagu` 配置
+  - `getWebpackConfig` 根据 `target` 获取前端或者后端 `webpack` 配置
+
+## Info 插件
+
+框架在应用配置计算表达式之前，执行该插件。通过 `Info`  插件，我们可以自定义获取一些云端函数或者触发器的信息。比如使用 `Info` 插件获取腾讯云云函数在云端的部署信息:
+
+```typescript
+import {
+  DefaultProfileProvider,
+  FaaSAdapterUtils,
+} from "@malagu/faas-adapter/lib/hooks";
+import { CliContext } from "@malagu/cli-common";
+
+export default async (context: CliContext) => {
+  const { cfg, pkg } = context;
+
+  const adapterConfig = FaaSAdapterUtils.getConfiguration<any>(cfg);
+
+  const profileProvider = new DefaultProfileProvider();
+  const { region, credentials } = await profileProvider.provide(adapterConfig);
+  clientConfig = {
+    credential: {
+      secretId: credentials.accessKeyId,
+      secretKey: credentials.accessKeySecret,
+    },
+    profile: {
+      signMethod: "HmacSHA256",
+      httpProfile: {
+        reqMethod: "POST",
+        reqTimeout: 30,
+      },
+    },
+    region: region,
+  };
+  const { namespace, apiGateway } = adapterConfig;
+  const functionMeta = adapterConfig.function;
+  const functionName = functionMeta.name;
+
+  console.log(
+    `\nGetting ${chalk.bold.yellow(pkg.pkg.name)} from the ${chalk.bold.blue(
+      region
+    )} region of SCF...`
+  );
+
+  console.log(chalk`{bold.cyan - SCF:}`);
+
+  try {
+    const functionInfo = await getFunction(namespace.name, functionName);
+
+    console.log(`    - FunctionName : ${functionInfo.FunctionName}`);
+    console.log(`    - FunctionVersion : ${functionInfo.FunctionVersion}`);
+    console.log(`    - Status : ${functionInfo.Status}`);
+    console.log(`    - Qualifier : ${functionInfo.Qualifier}`);
+    console.log(`    - Timeout : ${functionInfo.Timeout}`);
+  } catch (error) {
+    if (error.code === "ResourceNotFound.Function") {
+      console.log("No Fuction Found");
+    } else {
+      throw error;
+    }
+  }
+
+  if (apiGateway) {
+    console.log(chalk`\n{bold.cyan - API Gateway:}`);
+    const apiGatewayInfo = await getApiGatway(namespace.name, functionName);
+    const tiggerList = apiGatewayInfo.Triggers;
+    if (tiggerList) {
+      tiggerList.forEach(item => {
+        const triggerDesc = JSON.parse(item.TriggerDesc);
+        console.log(`    - serviceName : ${triggerDesc.service.serviceName}`);
+        console.log(`    - Type : ${item.Type}`);
+        console.log(`    - AvailableStatus : ${item.AvailableStatus}`);
+        if (item.Type === "apigw") {
+          console.log(`    - subDomain : ${triggerDesc.service.subDomain}`);
+        }
+      });
+    } else {
+      console.log("No API Gateway Tigger Found");
+    }
+  }
+
+  console.log();
+  console.log("Finished");
+  console.log();
+};
+```
+
+插件代码存放到项目目录 `src/info-hook.ts` 或者 `src/hooks/info.ts` ，框架自动识别加载，也可以通过属性 `configHooks` 自定义其他目录位置。
+
+通过命令行上下文，我们可以取到一下相关信息：
+
+- `pkg` 应用程序包，通过该对象可以获取应用程序包相关信息，例如应用版本、应用名称、应用包含的组件等等信息
+- `cfg` 应用配置信息，通过该对象可以获取应用配置信息，该应用的配置信息为所有组件属性聚合并计算了表达式以后的值。框架也提供了一些关于应用配置相关的工具方法：
+  - `getConfig` 根据 `target` 获取前端或者后端配置
+  - `getMalaguConfig` 根据 `target` 获取前端或者后端 `malagu` 配置
+  - `getWebpackConfig` 根据 `target` 获取前端或者后端 `webpack` 配置
+
+## Init 插件
+
+执行 `malagu init` 命令的时候，执行该插件。比如：
+
+```typescript
+import { InitContext } from '@malagu/cli';
+
+export default async (context: InitContext) => {
+   	...
+};
+```
+
+插件代码存放到项目目录 `src/init-hook.ts` 或者 `src/hooks/init.ts` ，框架自动识别加载，也可以通过属性 `initHooks` 自定义其他目录位置。
+
+通过命令行上下文，我们可以取到一下相关信息：
+
+- `program` 命令行对象，通过该对象可以获取命令相关信息
+- `pkg` 应用程序包，通过该对象可以获取应用程序包相关信息，例如应用版本、应用名称、应用包含的组件等等信息
+- `cfg` 应用配置信息，通过该对象可以获取应用配置信息，该应用的配置信息为所有组件属性聚合并计算了表达式以后的值。框架也提供了一些关于应用配置相关的工具方法：
+  - `getConfig` 根据 `target` 获取前端或者后端配置
+  - `getMalaguConfig` 根据 `target` 获取前端或者后端 `malagu` 配置
+  - `getWebpackConfig` 根据 `target` 获取前端或者后端 `webpack` 配置
+- 其他信息，包含了 `name` 、 `tempate` 、 `outputDir` 等信息

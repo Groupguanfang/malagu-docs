@@ -1,0 +1,83 @@
+---
+title: AOP拦截
+---
+
+面向切面编程（AOP）是一种横向扩展的方式。Malagu 框架支持 AOP，提供了一系列的扩展接口来定义自己的`切面`。通过 AOP 我们可以实现`全局日志拦截`、`全局权限拦截`等等功能，同时，也能`不污染业务代码`。目前，Malagu 框架支持了方法类型的`拦截点`，未来可能会有更多类型的`拦截点`，用户也可以实现自己需要的`拦截点类型`。
+
+## Advice
+
+AOP 最基础的一个接口，AOP 拦截点会通知 Advice 接口的实现。根据拦截点的类型和时机不同，会有不同的子接口。
+
+```typescript
+export interface Advice {}
+```
+
+## BeforeAdvice
+
+AOP 拦截点之前会通知 BeforeAdvice 接口的实现。
+
+```typescript
+export interface BeforeAdvice extends Advice {}
+```
+
+## AfterAdvice
+
+AOP 拦截点之后会通知 AfterAdvice 接口的实现。
+
+```typescript
+export interface AfterAdvice extends Advice {}
+```
+
+## MethodBeforeAdvice
+
+AOP 方法拦截点（调用）之前会通知 MethodBeforeAdvice 接口的实现。
+
+```typescript
+export interface MethodBeforeAdvice extends BeforeAdvice {}
+```
+
+## AfterReturningAdvice
+
+AOP 方法拦截点（调用）之后会通知 AfterReturningAdvice 接口的实现。
+
+```typescript
+export interface AfterReturningAdvice extends AfterAdvice {}
+```
+
+## AfterThrowsAdvice
+
+AOP 方法拦截点（抛异常）之后会通知 AfterThrowsAdvice 接口的实现。
+
+```typescript
+export interface AfterThrowsAdvice extends AfterAdvice {}
+```
+
+## @Aspect
+
+用于类上，基于`@Component`扩展实现，在`@Component`的属性配置只是扩展了`pointcut`属性，对指定系统`tag`进行方法拦截。`@Aspect`可以方便我们定义和实现方法拦截功能的，所有该装饰器只能在与方法拦截相关的接口实现类上。
+
+### 示例
+
+```typescript
+import { Aspect } from "@malagu/core";
+
+@Aspect({ id: MethodBeforeAdvice, pointcut })
+export class SecurityMethodBeforeAdivice extends AbstractSecurityMethodAdivice implements MethodBeforeAdvice {
+  async before(method: string | number | symbol, args: any[], target: any): Promise<void> {
+    if (this.needAccessDecision(method)) {
+      const ctx = { method, args, target, authorizeType: AuthorizeType.Pre, grant: 0 };
+      const securityMetadata = await this.securityMetadataSource.load(ctx);
+      await this.accessDecisionManager.decide(securityMetadata);
+    }
+  }
+}
+```
+
+### 参数
+
+```typescript
+export interface AspectOption extends ComponentOption {
+  id: ComponentId;
+  pointcut?: string; // 需要被拦截的切点，切点的值与 @Component 的 sysTags 关联
+}
+```

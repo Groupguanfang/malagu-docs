@@ -1,0 +1,3 @@
+.hero img {
+  width: min(100%, 10rem) !important;
+}
