@@ -1,8 +1,17 @@
 ---
-title: 介绍
+title: 入门
 description: Malagu 是基于 TypeScript 的 Serverless First、组件化、平台无关的渐进式应用框架。Malagu 是首款 Serverless First 应用开发框架。 使用同一套编程语言和 IoC 设计，用于开发前端、后端和前后端一体化应用。并且结合了 OOP（面向对象编程）、AOP（面向切面编程）等元素，借鉴了很多 Spring Boot 设计思想...
+hero:
+  image:
+    alt: Malagu Logo
+    file: ../../../assets/Malagu_Logo_Green.svg
 sidebar:
   order: 1
+head:
+  - tag: link
+    attrs:
+      rel: stylesheet
+      href: /styles/hero.css
 ---
 
 > 为了更好地提升 Malagu 框架的开发体验，Malagu 社区共建团队精心设计了一套问卷调查，感谢各位能够给我们一些反馈：<a target="_blank" href="https://wj.qq.com/s2/8728486/5781/">Malagu 使用情况问卷</a>
@@ -89,8 +98,4 @@ sls 偏运维工具，侧重于对 Serverless 相关资源的编排。sls 提供
 
 import { LinkCard, CardGrid } from "@astrojs/starlight/components";
 
-<LinkCard
-  title="安装CLI"
-  description="了解如何安装Malagu CLI，并创建一个全新的Malagu项目。"
-  href="/guides/create"
-/>
+<LinkCard title="安装CLI" description="了解如何安装Malagu CLI，并创建一个全新的Malagu项目。" href="/guides/create" />

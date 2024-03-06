@@ -1,3 +1,10 @@
 .hero img {
   width: min(100%, 10rem) !important;
 }
+
+@media screen and (max-width: 800px) {
+  .hero .sl-flex h1 {
+    font-size: 3rem;
+    margin-top: 14px;
+  }
+}
