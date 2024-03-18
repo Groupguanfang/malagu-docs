@@ -2,27 +2,21 @@
 title: Prisma
 ---
 
-# Prisma
-
-## 本地开发
-
 在本地调试的时候可以参照 [官方教程](https://www.prisma.io/docs/getting-started/setup-prisma/add-to-existing-project/relational-databases-typescript-postgres) 引入，引入后在打包前可以正常使用，具体步骤如下。
 
-#### 设置 Prisma
+## 设置 Prisma
 
 ```shell
 npm install prisma
-or
-yarn add prisma
 ```
 
-#### 初始化 Prisma
+## 初始化 Prisma
 
 ```shell
 npx prisma init
 ```
 
-#### 连接数据库
+## 连接数据库
 
 ```prisma
 // schema.prisma
@@ -42,25 +36,25 @@ generator client {
 
 ![](https://img.jaryn.ink/img/202210211610727.png)
 
-#### 安装 Prisma Client
+## 安装 Prisma Client
 
 ```shell
 npm install @prisma/client
 ```
 
-#### 生成 Prisma Client
+## 生成 Prisma Client
 
 ```sh
 npx prisma generate
 ```
 
-#### 创建迁移
+## 创建迁移
 
 ```sh
 npx prisma migrate dev --name init
 ```
 
-#### 使用 Prisma
+## 使用 Prisma
 
 ```ts
 import { PrismaClient } from "../prisma-client";
@@ -87,7 +81,7 @@ async function main() {
 
 发布的时候 Prisma Client 和 Prisma Schema 默认不会打包，所以需要 webpack 插件，参考如下示例。
 
-#### 创建 src/hooks/webpack.ts hook 文件
+### 创建 src/hooks/webpack.ts hook 文件
 
 关于 Webpack Hook，请查看:[Webpack 插件](/main/cli/hook/#webpack-%E6%8F%92%E4%BB%B6)
 
@@ -120,6 +114,6 @@ export default async (context: WebpackContext) => {
 };
 ```
 
-#### 使用 COS 方式部署代码
+### 使用 COS 方式部署代码
 
 因为 Prisma 生成的 client 体积非常大，使用直接上传代码包的方式上传的话，可能会超出接口限制，建议使用 malagu 的`通过COS方式部署`能力进行部署。

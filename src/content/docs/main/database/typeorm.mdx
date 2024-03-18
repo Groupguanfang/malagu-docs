@@ -2,8 +2,6 @@
 title: TypeORM
 ---
 
-# Typeorm
-
 Malagu 框架可以很方便集成第三方数据库操作相关的框架，比如 [Sequelize](https://sequelize.org/)、[Typeorm](https://typeorm.io/#/) 等等。基于 Malagu 的组件机制，让第三库扩展性更强，且支持属性配置，开箱即用。目前，框架提供了对 Typeorm 库的集成，让我们可以通过框架配置文件，配置数据库链接相关信息。另外，Malagu 框架是 Serverless First，框架在集成 Typeorm 的时候，对 **Serverless 场景做了最佳实践适配**。并且也**借鉴了 Spring 事务管理机制**，提供了**无侵入式的事务管理**，且支持事务的传播行为。
 
 ## 使用方法
@@ -18,7 +16,7 @@ npm install @malagu/typeorm
 
 在 Malagu 中，数据源链接配置与 Typeorm 几乎是一样的，只是配置的形式和位置不一样而已。框架为了让第三库的配置方式与框架组件的配置方式保持统一，框架在集成 Typeorm 的时候，将 Typeorm 的原有配置方式适配成了框架组件的配置方式。更多 Typeorm 数据源链接配置说明，请查看 [Typeorm 官方文档](https://typeorm.io/#/connection-options)。
 
-#### 单数据源
+### 单数据源
 
 数据源链接名称如果没有设置的话，默认是 `default`。
 
@@ -37,7 +35,7 @@ backend:
           database: test
 ```
 
-#### 多数据源
+### 多数据源
 
 为了区分不同的数据源链接，需要给数据源链接设置名称，有且只有一个可以不设置名称，且该链接默认名称为`default` 。在使用 OrmContext 相关的 API 的时候，数据源链接的名称会用到。
 
@@ -172,7 +170,7 @@ export namespace OrmContext {
 
 Malagu 框架提供了一个装饰器 `@Transactional` ，以声明的方式定义事务的行为，Malagu 框架根据装饰器声明决定事务的开启、传播、提交和回滚行为。
 
-#### `@Transactional`
+### `@Transactional`
 
 本装饰器可以是加在类和方法上，如果类和方法同时加了该装饰器，最终的配置是拿方法的配置去合并类上的，且方法的配置优先级高于类上。装饰器配置选项：
 
@@ -196,7 +194,7 @@ async modify(@Body() user: User): Promise<void> {
 }
 ```
 
-#### @Transactional 与 OrmContext
+### @Transactional 与 OrmContext
 
 Malagu 框架根据装饰器的配置，在方法调用前开启事务（也可能不开启），然后把 EntityManager 托管在 OrmContext 上下文中，通过`OrmContext`取到框架帮我们开启过事务的 EntityManager，其中 Repository 也是通过托管的 EntityManager 创建的。为了正确的取到 EntityManager，请确保装饰器配置的名称与 通过 OrmContext 要获取的 EntityMananger 名称保持一致，不指定名称，则默认为 `default`。
 
@@ -204,7 +202,7 @@ Malagu 框架根据装饰器的配置，在方法调用前开启事务（也可�
 
 当方法存在嵌套调用带 `@Transactional`装饰器的方法，由事务传播行为的配置决定是复用上层方法的事务，还是重新开启新的事务。
 
-#### 数据库查询
+### 数据库查询
 
 数据库查询大部分情况不需要开启事务，但是我们也最好在方式加上 `@Transactional` 装饰器，然后把 readonly 配置为 true，让框架为我们创建一个不开启事务的 EntityManager，保持代码风格统一：
 
@@ -217,7 +215,7 @@ list(): Promise<User[]> {
 }
 ```
 
-#### 事务传播行为
+### 事务传播行为
 
 事务传播行为决定事务在需要事务的不同方法之间事务是如何传播的，目前支持两种事务传播行为：
 
