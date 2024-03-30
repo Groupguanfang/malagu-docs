@@ -82,6 +82,19 @@ export default defineConfig({
         { label: "开发", autogenerate: { directory: "dev" } },
         { label: "部署", autogenerate: { directory: "cloud" } },
         { label: "扩展", autogenerate: { directory: "extends" } },
+        { label: "参与贡献", link: "contribute" },
+        { label: "工具库推荐", link: "tools-recommend" },
+        { label: "Github", link: "https://github.com/cellbang/malagu", attrs: { target: "_blank" } },
+        {
+          label: "加入QQ群",
+          link: "https://qm.qq.com/cgi-bin/qm/qr?k=DoAe0V5Zz3vzn31b1YjEd1WfwFjf7A70&authKey=gZpkj30DDWF/qJII/+cRFh38135do7jZvYbG1fngcLgaD3lB1IVxdhUMRrgTe0iK&noverify=0",
+          attrs: { target: "_blank" },
+        },
+        {
+          label: "加入微信群",
+          link: "https://work.weixin.qq.com/gm/1dc8c0da2260edc740dd27532406e3b4",
+          attrs: { target: "_blank" },
+        },
       ],
       locales: {
         root: {
