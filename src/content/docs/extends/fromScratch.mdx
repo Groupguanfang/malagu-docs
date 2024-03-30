@@ -1,0 +1,506 @@
+---
+title: 从零创建Vue项目
+description: 本篇从零开始创建一个Malagu框架项目，以便大家更好的了解Malagu框架
+sidebar:
+  order: 2
+tableOfContents:
+  maxHeadingLevel: 4
+---
+
+import { Steps, FileTree, Aside, LinkCard } from "@astrojs/starlight/components";
+
+本篇文章将会介绍如何通过 Malagu 从零搭建一个简单的示例项目。
+
+## 从零创建 Vue 项目
+
+本篇从零开始创建一个基于 Malagu 框架的 vue 项目，以便大家更好的了解 Malagu 框架。Malagu 自带的 cli 工具可快速创建模板项目，可参考以下链接：[创建项目](https://www.yuque.com/cellbang/malagu/ogreg3)、[Vue 开发](https://www.yuque.com/cellbang/malagu/vgim9q)
+
+<Steps>
+  <ol>
+    <li>
+    #### 创建目录及初始化
+
+    ```bash
+      mkdir vue-example
+      cd vue-example
+      echo '{}'>package.json
+    ```
+    </li>
+    <li>
+    #### 安装相关依赖
+
+    ```bash
+      npm i -D @malagu/cli @malagu/cli-service
+      npm i -S @malagu/vue @malagu/serve-static @malagu/vue
+    ```
+    </li>
+    <li>
+    #### 编辑 package.json，加入以下内容
+
+    ```json
+    // package.json
+    {
+      "name": "vue-example",
+      "keywords": ["malagu-component"],
+      "scripts": {
+        "start": "malagu serve",
+        "build": "malagu build"
+      }
+    }
+    ```
+    <Aside>
+    注意：keywords 必须添加且其中必须有`malagu-component`，框架通过此配置来循环查找依赖链
+    </Aside>
+
+    </li>
+    <li>
+    #### 添加TypeScript配置文件
+
+    ```json
+    // tsconfig.json
+    {
+      "compilerOptions": {
+        "target": "esnext",
+        "module": "commonjs",
+        "strict": true,
+        "jsx": "preserve",
+        "moduleResolution": "node",
+        "skipLibCheck": true,
+        "declaration": true,
+        "declarationMap": true,
+        "noImplicitAny": true,
+        "noEmitOnError": false,
+        "noImplicitThis": true,
+        "noUnusedLocals": true,
+        "strictNullChecks": true,
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true,
+        "downlevelIteration": true,
+        "strictPropertyInitialization": false,
+        "lib": ["es6", "dom"],
+        "sourceMap": true,
+        "rootDir": "src",
+        "outDir": "lib",
+        "baseUrl": "src",
+        "paths": {
+          "~/*": ["*"]
+        }
+      },
+      "include": ["src"]
+    }
+    ```
+    </li>
+    <li>
+    #### 添加 Malagu 项目配置文件，仅加载前端模块
+
+    ```yml
+    # malagu.yml
+
+    targets:
+      - frontend
+    ```
+    </li>
+    <li>
+    #### 为TypeScript添加.vue文件支持
+
+    ```typescript
+    // src/shims-vue.d.ts
+
+    declare module "*.vue" {
+      import { DefineComponent } from "vue";
+      const component: DefineComponent<{}, {}, unknown>;
+      export default component;
+    }
+    ```
+    </li>
+    <li>
+    #### 添加 vue 文件，开始编写项目
+    ```html
+    <!-- src/root.vue -->
+
+    <template>
+      <h1>{{ msg }}</h1>
+    </template>
+
+    <script lang="ts">
+      import { defineComponent, ref } from "vue";
+
+      export default defineComponent({
+        setup() {
+          const msg = ref("hello malagu");
+          return { msg };
+        },
+      });
+    </script>
+    ```
+
+    > 默认为 vue 3。
+
+    </li>
+    <li>
+    #### 添加module.ts文件
+
+    Malagu 框架通过 module.ts 加载项目，必须引入autoBind方法并调用。在此文件中引 app.ts 使 Malagu 框架能引导 vue 项目。
+
+    使用@malagu/core提供的`App`注解，挂载vue实例：
+
+    ```ts
+    // src/app.ts
+
+    import { createApp } from "vue";
+    import { App } from "@malagu/vue";
+    import Root from "./root.vue";
+
+    @App(createApp(Root))
+    export default class {}
+    ```
+    </li>
+
+  </ol>
+</Steps>
+
+最终的项目文件如下：
+
+<FileTree>
+
+- vue-example/
+- node_modules/
+- src/
+  - app.ts
+  - module.ts
+  - root.tsx
+  - shims-vue.d.ts
+- malagu.yml
+- package-lock.json
+- package.json
+- tsconfig.json
+
+</FileTree>
+
+### 启动项目
+
+```bash
+npm start
+```
+
+- 此时访问 localhost:3000，可查看项目。默认端口为 3000，可通过`-p`选项指定端口
+
+### 添加路由
+
+```bash
+npm i -S vue-router@next
+```
+
+#### 编辑文件
+
+```html
+<!-- src/views/home/index.vue -->
+
+<template>
+  <h1>index</h1>
+</template>
+<script lang="ts">
+  import { defineComponent } from "vue";
+
+  export default defineComponent({});
+</script>
+```
+
+```html
+<!-- src/views/home/about.vue -->
+
+<template>
+  <h1>about</h1>
+</template>
+<script lang="ts">
+  import { defineComponent } from "vue";
+  export default defineComponent({});
+</script>
+```
+
+```ts
+// src/config/router.ts
+
+import { createRouter, createWebHashHistory } from "vue-router";
+import Home from "../views/home/index.vue";
+
+const routes = [
+  { path: "/", component: Home },
+  { path: "/about", component: import("../views/home/about.vue") },
+];
+
+export const router = createRouter({
+  history: createWebHashHistory(),
+  routes,
+});
+```
+
+修改 src/root.vue，添加链接，修改后的文件如下：
+
+```html
+<!-- src/root.vue -->
+
+<template>
+  <div>
+    <ul>
+      <li><router-link to="/">首页</router-link></li>
+      <li><router-link to="/about">关于</router-link></li>
+    </ul>
+    <router-view />
+  </div>
+</template>
+
+<script lang="ts">
+  import { defineComponent, ref } from "vue";
+
+  export default defineComponent({});
+</script>
+```
+
+修改 app.ts 引用 router 并且在 createApp 后添加`.use(router)`，修改后的文件如下：
+
+```ts
+// app.ts
+
+import { createApp } from "vue";
+import { App } from "@malagu/vue";
+import Root from "./root.vue";
+import { router } from "./config/router";
+
+@App(createApp(Root).use(router))
+export default class {}
+```
+
+### 添加 vuex
+
+```bash
+npm i -S vuex@next
+```
+
+#### 编辑文件
+
+```ts
+// src/store/index.ts
+
+import { createStore } from "vuex";
+
+export const store = createStore({
+  state() {
+    return {
+      title: "首页",
+    };
+  },
+});
+```
+
+引入 store 并调用`use`方法，修改后的文件如下：
+
+```ts
+// src/app.ts
+
+import { createApp } from "vue";
+import { App } from "@malagu/vue";
+import Root from "./root.vue";
+import { router } from "./config/router";
+import { store } from "./store";
+
+@App(createApp(Root).use(router).use(store))
+export default class {}
+```
+
+#### 使用 vuex 读取 state
+
+读取 store 定义的 state，示例如下：
+
+```html
+<!-- src/views/home/index.vue -->
+
+<template>
+  <h1>index</h1>
+  <p>title: {{ title }}</p>
+</template>
+<script lang="ts">
+  import { defineComponent, computed } from "vue";
+  import { useStore } from "vuex";
+  export default defineComponent({
+    setup() {
+      const store = useStore();
+      const title = computed(() => store.state.title);
+      return { title };
+    },
+  });
+</script>
+```
+
+### 配置 vue 项目
+
+这里为 vue 项目添加一些基础的配置，其余的配置可以参考 Vue 官方文档。
+
+#### 配置路径别名
+
+刚刚可以看到，我们在`src/config/router.ts`文件中引用 vue 文件使用的是相对路径，实际开发中会为路径定义别名。现在我们给 Malagu 根目录配置别名。
+
+##### 修改 ts 别名配置
+
+修改 tsconfig.json，添加 paths 设置:
+
+```json
+// tsconfig.json
+{
+  "compilerOptions": {
+    // ...
+    "paths": {
+      "~/*": ["*"]
+    }
+  }
+}
+```
+
+##### 添加 webpack 配置
+
+添加 src/hooks/webpack.ts，配置 webpack 别名
+
+```ts
+// src/hooks/webpack.ts
+import { WebpackContext, ConfigurationContext } from "@malagu/cli-service";
+import * as path from "path";
+
+export default async (context: WebpackContext) => {
+  const { configurations } = context;
+  const webpackConfig = ConfigurationContext.getFrontendConfiguration(configurations);
+  if (webpackConfig) {
+    const basePath = path.resolve(__dirname, "../");
+    webpackConfig.resolve.alias.set("~", basePath);
+  }
+};
+```
+
+> 修改配置使用`webpack-chain`语法，可搜索相关 api 用法。
+
+<LinkCard
+  title="扩展阅读：CLI Webpack插件"
+  href="/main/cli/hook/#webpack-插件"
+  description="通过Webpack插件，我们可以自定义 Webpack 构建行为"
+></LinkCard>
+
+##### 修改路由文件
+
+将 src/config/router.ts 中的路径，将`../`修改为`~`
+
+- 因为之前项目启动前没有加载 src/hook/webpack.ts 所以需要重启项目加载该配置
+
+#### 为 scss 加载全局变量
+
+```scss
+// src/styles/variables.scss
+
+$backgrond-color: #ddd;
+```
+
+##### 添加 webpack 配置
+
+通过 webpack 相关配置可以为 scss 全局载入变量。在刚刚别名配置后面加入以下内容：
+
+```ts
+// src/hooks/webpack.ts
+
+export default async (context: WebpackContext) => {
+  const { configurations } = context;
+  const webpackConfig = ConfigurationContext.getFrontendConfiguration(configurations);
+  if (webpackConfig) {
+    let oneOfKeys = ["normal", "normal-modules", "vue", "vue-modules"];
+    for (let oneOfKey of oneOfKeys) {
+      webpackConfig.module
+        .rule("scss")
+        .oneOf(oneOfKey)
+        .use("sass-loader")
+        .tap((options: any) => ({
+          ...options,
+          additionalData: "@import '~/styles/variables.scss';",
+        }))
+        .end()
+        .end()
+        .end()
+        .rule("sass")
+        .oneOf(oneOfKey)
+        .use("sass-loader")
+        .tap((options: any) => ({
+          ...options,
+          additionalData: "@import '~/styles/variables.scss'",
+        }));
+    }
+  }
+};
+```
+
+然后设置样式即可，例如：
+
+```html
+<!-- src/root.vue -->
+
+<style lang="scss">
+  body {
+    background-color: $backgrond-color;
+  }
+</style>
+```
+
+#### 为 webpack 配置 proxy
+
+修改 src/hooks/webpack.ts，加入以下内容即可：
+
+```ts
+// src/hooks/webpack.ts
+export default async (context: WebpackContext) => {
+  const { configurations } = context;
+  const webpackConfig = ConfigurationContext.getFrontendConfiguration(configurations);
+  if (webpackConfig) {
+    webpackConfig.devServer.proxy({
+      "/api": {
+        target: "http://example.com",
+        changeOrigin: true,
+        pathRewrite: {
+          "^/api": "",
+        },
+      },
+    });
+  }
+};
+```
+
+#### 前端应用
+
+将上例中的`target`修改为`https://www.baidu.com/`
+
+修改 src/views/home/index.vue，内容如下：
+
+```html
+<!-- src/views/home/index.vue -->
+
+<template>
+  <h1>index</h1>
+  <p>title: {{ title }}</p>
+  <button @click="request">click</button>
+</template>
+<script lang="ts">
+  import { defineComponent, computed, ref } from "vue";
+  import { useStore } from "vuex";
+  import { ContainerUtil } from "@malagu/core";
+  import { HttpService } from "~/common";
+
+  export default defineComponent({
+    setup() {
+      const store = useStore();
+      const title = computed(() => store.state.title);
+      return { title };
+    },
+    methods: {
+      request() {
+        fetch("/api/index.html").then((res: any) => console.log(res));
+      },
+    },
+  });
+</script>
+```
+
+点击按钮，控制台会输出百度首页的 html。

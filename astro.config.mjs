@@ -47,7 +47,7 @@ export default defineConfig({
                 { label: "工具集", link: "main/core/utils" },
                 { label: "数据格式", link: "main/core/dataformat" },
                 { label: "配置属性索引", link: "main/core/configurations" },
-                { label: "注解索引", link: "main/core/decorators" },
+                // { label: "注解索引", link: "main/core/decorators" },
               ],
             },
             { label: "Web", collapsed: true, autogenerate: { directory: "main/web", collapsed: true } },
@@ -81,6 +81,7 @@ export default defineConfig({
         },
         { label: "开发", autogenerate: { directory: "dev" } },
         { label: "部署", autogenerate: { directory: "cloud" } },
+        { label: "扩展", autogenerate: { directory: "extends" } },
       ],
       locales: {
         root: {
