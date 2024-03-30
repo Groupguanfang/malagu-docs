@@ -1,8 +1,8 @@
 ---
 title: 日志
+sidebar:
+  order: 5
 ---
-
-# 日志
 
 Malagu 默认提供的日志功能比较简单，底层是运行时 console 对象实现。如果我们想要功能更为强大的日志，可以选择`@malagu/logger`组件，该组件是基于 [winston](https://www.npmjs.com/package/winston) 库实现。当然，我们也可以很容集成其他第三方日志库。在 Serverless 场景，使用默认的日志功能实现就能满足需求，因为 Serverless 平台会自动帮我们收集日志，方便我们查看与分析应用。
 

@@ -1,0 +1,74 @@
+---
+title: 配置属性索引
+sidebar:
+  order: 9
+---
+
+这里列出关于`@malagu/web`的相关配置属性。
+
+## malagu.session
+
+会话配置，结构如下：
+
+| Key          | Value            | Description |
+| ------------ | ---------------- | ----------- |
+| autoCommit   | true             |             |
+| maxAge       | 86400000         |             |
+| sessionIdKey | malagu:sessionId |             |
+| sessionKey   | malagu:session   |             |
+
+## malagu.server
+
+服务配置，结构如下：
+
+| Key      | Value                                  | Description |
+| -------- | -------------------------------------- | ----------- |
+| path     | /                                      |             |
+| port     | 3000                                   |             |
+| endpoint | http://localhost:${malagu.server.port} |             |
+
+## malagu.trace
+
+追踪 id，结构如下：
+
+| Key           | Value             | Description |
+| ------------- | ----------------- | ----------- |
+| requestField  | X-Malagu-Trace-ID |             |
+| responseField | X-Malagu-Trace-ID |             |
+
+## malagu.web
+
+配置路由验证等，结构如下：
+
+| Key                      | Value | Description |
+| ------------------------ | ----- | ----------- |
+| route.cacheSize          | 500   |             |
+| validationPipeOptions    | false |             |
+| - detailedOutputDisabled | false |             |
+| - transformEnabled       | true  |             |
+
+## malagu.client.config
+
+结构如下：
+
+| Key                | Value          | Description |
+| ------------------ | -------------- | ----------- |
+| withCredentials    | true           |             |
+| headers            | true           |             |
+| - X-Requested-With | XMLHttpRequest |             |
+
+## malagu.cookies
+
+cookies 配置，结构如下：
+
+| Key  | Value    | Description |
+| ---- | -------- | ----------- |
+| keys | - abcdef |             |
+
+## malagu.backend
+
+后端配置，结构如下：
+
+| Key      | Value                                      | Description |
+| -------- | ------------------------------------------ | ----------- |
+| devEntry | lib/node/application/dev-application-entry |             |

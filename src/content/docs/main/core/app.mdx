@@ -1,5 +1,5 @@
 ---
-title: 应用程序
+title: 核心原理
 sidebar:
   order: 6
 ---
@@ -50,3 +50,256 @@ async function bootstrap() {
 
 bootstrap();
 ```
+
+## 核心配置参考
+
+下面是关于`@malagu/core`的核心配置项。
+
+### malagu.hostDomId
+
+用来定义前端的根元素 id，默认值：malagu-root，示例：
+
+```yml
+# malagu.yml
+malagu:
+  hostDomId: app
+```
+
+### malagu.annotation.Component.proxy
+
+是否启用代理(可在组件的参数中单独启用，AOP 组件需要开启)，默认值：false
+
+```yml
+# malagu.yml
+malagu:
+  annotation:
+    Component:
+      proxy: true
+```
+
+### malagu.aop
+
+是否开启 aop，默认值`true`
+
+```yml
+# malagu.yml
+malagu:
+  aop: false
+```
+
+### malagu.logger.level
+
+日志级别，默认值：`info`
+
+```yml
+# malagu.yml
+malagu:
+  logger:
+    level: debug # 'verbose' | 'debug' | 'info' | 'warn' | 'error'
+```
+
+### frontend.entry
+
+指定前端应用的入口文件，默认值：lib/common/application/application-entry
+
+```yml
+# malagu.yml
+frontend:
+  entry: lib/common/application/application-entry
+```
+
+### backend.entry
+
+指定 node 应用的入口文件，默认值：lib/common/application/application-entry
+
+```yml
+# malagu.yml
+backend:
+  entry: lib/common/application/application-entry
+```
+
+## Application 原理
+
+Application 是 Malagu 应用的入口，以[common/application-entry.ts](https://github.com/cellbang/malagu/blob/master/packages/core/src/common/application/application-entry.ts)为例：
+
+```typescript {6,7}
+import { container } from "../container/dynamic-container";
+import { Application } from "./application-protocol";
+import { ContainerProvider } from "../container";
+container.then((c) => {
+  ContainerProvider.set(c);
+  const application = c.get<Application>(Application);
+  application.start().catch((reason) => {
+    console.error(`Failed to start the ${application.constructor.name}.`);
+    if (reason) {
+      console.error(reason);
+    }
+  });
+});
+```
+
+在第六行，获取 Application 的实例，并在第七行调用了`start`方法启动应用。`Application`在核心包中的前后端实现如下：
+
+- 前端：[browser/application/frontend-application.ts](https://github.com/cellbang/malagu/blob/master/packages/core/src/browser/application/frontend-application.ts)
+
+- 后端 [node/application/backend-application.ts](https://github.com/cellbang/malagu/blob/master/packages/core/src/node/application/backend-application.ts)
+
+### start 方法
+
+```typescript
+async start(): Promise<void> {
+    await this.doStart();
+    this.stateService.state = 'started';
+
+    const host = await this.getHost();
+    this._shell.attach(host);
+    await new Promise<void>(resolve => requestAnimationFrame(() => resolve()));
+    this.stateService.state = 'attached_shell';
+
+    await this.revealShell(host);
+    this.registerEventListeners();
+    this.stateService.state = 'ready';
+}
+```
+
+start 方法中调用了`this._shell.attach(host)`来处理前端的渲染，`this._shell`是`ApplicationShell`的实例，`ApplicationShell`在[browser/shell/application-shell.ts](https://github.com/cellbang/malagu/blob/master/packages/core/src/browser/shell/application-shell.ts)文件中的实现如下：
+
+```typescript
+// browser/shell/application-shell.ts
+import { Component } from "../../common";
+import { ApplicationShell } from "./shell-protocol";
+
+@Component(ApplicationShell)
+export class ApplicationShellImpl implements ApplicationShell {
+  attach(host: HTMLElement): void {
+    host.textContent = "Hello, Malagu.";
+  }
+}
+```
+
+我们可以看到 attch 方法接为一个类型为`HTMLElement`的参数 host，并调用`host.textContent = 'Hello, Malagu.'`赋值实现了一个前端的渲染动作。
+
+后端的`Appliction`的`start`方法中仅调用父类`AbstractApplication`的`doStart`方法处理生命周期的回调。具体的启动逻辑由对应的 package 处理。
+
+`Appliction`在日常应用开发基本接触不多，前端开发时可能需要自定义`ApplicationShell`来实现渲染。
+
+Application 相关代码文件：
+
+- [common/application](https://github.com/cellbang/malagu/tree/master/packages/core/src/common/application)
+- [node/application](https://github.com/cellbang/malagu/tree/master/packages/core/src/node/application)
+- [browser/application](https://github.com/cellbang/malagu/tree/master/packages/core/src/browser/application)
+
+## IOC 容器
+
+IoC 是面向对象编程的一种设计原则，Malagu 中主要依靠一系列的注解器(Annotation)来组织代码使之匹配这种设计原则。来看一段示例代码：
+
+```typescript
+import { Component, Autowired } from "@malagu/core";
+
+@Component("a")
+export class A {}
+
+@Component()
+export class B {
+  @Autowired("a")
+  protected a: A;
+}
+```
+
+常用的注解器如下：
+
+- `Component`/`Service` 定义功能
+- `Autowired` 挂载功能
+- `Constant` 定义常量
+- `Value` 挂载配置
+
+IOC 相关代码目录如下：
+
+- 容器实现：[common/container](https://github.com/cellbang/malagu/tree/master/packages/core/src/common/container)
+- IOC 相关的注解： [common/annotation](https://github.com/cellbang/malagu/tree/master/packages/core/src/common/annotation)
+
+## AOP
+
+AOP 面向切面编程是一种编程方式，可以作为 OOP 的补充，针对特定方法做前置后置处理。下面展示一个针对 Http 请求处理的示例：
+
+```typescript
+// http-service-protocol.ts
+export const HttpService = Symbol('HttpService');
+
+export interface HttpService {
+    get<T>: (url: string, data: any) => Promise<T>;
+    post<T>: (url: string, data: any) => Promise<T>;
+}
+```
+
+```typescript
+// http-service.ts
+import { Service } from "@malagu/core";
+import { HttpService } from "http-service-protocol";
+
+@Service(HttpService)
+export class HttpServiceImpl implements HttpService {
+  get<T>(url: string, data: any) {
+    // 发送get请求
+  }
+
+  post<T>(url: string, data: any) {
+    // 发送post请求
+  }
+}
+```
+
+```typescript
+// http-service-before.ts
+import { Aspect, MethodBeforeAdvice } from "@malagu/core";
+
+@Aspect(MethodBeforeAdvice)
+export class MethodBeforeAdviceImpl implements MethodBeforeAdvice {
+  async before(method: string | number | symbol, args: any[], target: any): Promise<void> {
+    if (method === "get" || method === "post") {
+      console.log(`method: ${method} url: ${args[0]} data${args[1]}`);
+    }
+  }
+}
+```
+
+AOP 相关代码文件：
+
+- 定义 AOP 的 interface 和相关实现: [common/aop](https://github.com/cellbang/malagu/tree/master/packages/core/src/common/aop)
+- AOP 相关的注解: [common/annotation](https://github.com/cellbang/malagu/tree/master/packages/core/src/common/annotation)
+- autoBind 中对 AOP 类进行包装: [common/container/auto-bind.ts](https://github.com/cellbang/malagu/blob/master/packages/core/src/common/container/auto-bind.ts)
+
+## 日志
+
+Malagu 核心提供了对日志的封装，代码在[common/logger/logger.ts](https://github.com/cellbang/malagu/blob/master/packages/core/src/common/logger/logger.ts):
+
+```typescript
+// http-service-before.ts
+import { Logger, Aspect, MethodBeforeAdvice } from "@malagu/core";
+
+@Aspect(MethodBeforeAdvice)
+export class MethodBeforeAdviceImpl implements MethodBeforeAdvice {
+  @Autowired(Logger)
+  loger: Logger;
+
+  async before(method: string | number | symbol, args: any[], target: any): Promise<void> {
+    if (method === "get" || method === "post") {
+      this.logger.info(`method: ${method} url: ${args[0]} data${args[1]}`);
+    }
+  }
+}
+```
+
+核心包内默认的日志功能较为精简，如果有更复杂的需求可以自行定义 Logger 来扩展，或者使用`@malagu/logger`包。
+
+## Error
+
+TODO
+
+## Config
+
+TODO
+
+## Utils
+
+TODO
