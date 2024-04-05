@@ -1,0 +1,68 @@
+title: 'Malagu - 基于 TypeScript 的 Serverless First、组件化、平台无关的渐进式应用框架'
+description: Nuxt UI Pro is a collection of premium Vue components built on top of Nuxt UI to create beautiful & responsive Nuxt applications in minutes.
+navigation: false
+hero:
+  title: 'Malagu Framework'
+  description: '基于 TypeScript 的 Serverless First、组件化、平台无关的渐进式应用框架'
+  orientation: horizontal
+  # headline:
+  #   label: Made with Nuxt UI Pro
+  #   to: https://ui.nuxt.com/pro
+  #   icon: i-heroicons-arrow-top-right-on-square-20-solid
+  links:
+    - label: 快速上手
+      icon: i-heroicons-arrow-right-20-solid
+      trailing: true
+      to: '/guides'
+      size: lg
+    - label: Github
+      icon: i-simple-icons-github
+      size: lg
+      color: gray
+      to: https://github.com/cellbang/malagu
+      target: _blank
+  code: |
+    ```bash [Terminal]
+    npm i -g @malagu/cli && malagu init -o my-app
+    ```
+features:
+  title: 为什么选择 Malagu
+  # links:
+  #   - label: 'Serverless First'
+  #     icon: 'i-simple-icons-nuxtdotjs'
+  #     trailingIcon: 'i-heroicons-arrow-right-20-solid'
+  #     color: 'gray'
+  #     to: 'https://ui.nuxt.com/pro'
+  #     target: '_blank'
+  #     size: lg
+  items:
+    - title: 'Serverless First'
+      description: '基于 TypeScript，坚信 Serverless 是未来，适配阿里云、腾讯云、AWS Lambda、Vercel等平台。'
+      icon: 'i-mdi-server-network'
+      # to: 'https://nuxt.com'
+      # target: '_blank'
+    - title: '组件化 + 模块化'
+      description: '在 Malagu 的世界里“一切皆组件”。多个组件组合成一个模块，一个或多个模块组合成一个应用。'
+      icon: 'i-mdi-grid'
+      # to: 'https://content.nuxt.com'
+      # target: '_blank'
+    - title: '平台无关'
+      description: '适配任意的平台和基础框架，是一个平台或基础框架无关的上层框架。'
+      icon: 'i-heroicons-sparkles-20-solid'
+      # to: 'https://ui.nuxt.com'
+      # target: '_blank'
+    - title: 'IOC + AOP'
+      description: '使用TypeScript装饰器注解实现了依赖注入和切面编程，抽象化解藕业务逻辑，提高代码的可维护性。'
+      icon: 'i-simple-icons-typescript'
+      # to: 'https://www.typescriptlang.org'
+      # target: '_blank'
+    - title: '渐进式'
+      description: '适配传统的 Web 应用、微服务、Serverless 应用，支持渐进式的应用开发，同时无缝集成各Web框架。'
+      icon: 'i-simple-icons-progress'
+      # to: 'https://nuxt.studio'
+      # target: '_blank'
+    - title: '开箱即用'
+      description: '提供了一整套的开发工具和组件，开发者可以自由地组合组件，快速地搭建应用，直接撰写业务代码。'
+      icon: 'i-mdi-package-variant'
+      # to: 'https://ui.nuxt.com/pro/components/docs/docs-search'
+      # target: '_blank'
