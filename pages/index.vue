@@ -1,16 +1,16 @@
 <script setup lang="ts">
-const { data: page } = await useAsyncData('index', () => queryContent('/').findOne())
-import SupportFramework from "@/assets/support_framework.webp"
-import QrCode from "@/assets/qrcode.webp"
-import Malagu from "@/assets/malagu.svg"
+const { data: page } = await useAsyncData("index", () => queryContent("/").findOne());
+import SupportFramework from "@/assets/support_framework.webp";
+import QrCode from "@/assets/qrcode.webp";
+import Malagu from "@/assets/malagu.svg";
 
 useSeoMeta({
-  titleTemplate: '',
+  titleTemplate: "",
   title: page.value.title,
   ogTitle: page.value.title,
   description: page.value.description,
-  ogDescription: page.value.description
-})
+  ogDescription: page.value.description,
+});
 </script>
 
 <template>
@@ -32,6 +32,7 @@ useSeoMeta({
       <!-- <MDC :value="page.hero.code" tag="pre" class="prose prose-primary dark:prose-invert mx-auto" /> -->
     </ULandingHero>
 
+    <!--
     <ULandingSection :title="page.features.title" :links="page.features.links">
       <UPageGrid>
         <ULandingCard v-for="(item, index) of page.features.items" :key="index" v-bind="item" />
@@ -68,5 +69,6 @@ useSeoMeta({
         </div>
       </div>
     </ULandingSection>
+    -->
   </div>
 </template>
