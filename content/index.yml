@@ -1,5 +1,5 @@
 title: 'Malagu - 基于 TypeScript 的 Serverless First、组件化、平台无关的渐进式应用框架'
-description: Nuxt UI Pro is a collection of premium Vue components built on top of Nuxt UI to create beautiful & responsive Nuxt applications in minutes.
+description: Malagu是一个基于 TypeScript 的 Serverless First、组件化、平台无关的渐进式应用框架，适配阿里云、腾讯云、AWS Lambda、Vercel等平台，支持渐进式的应用开发，同时无缝集成各大Web框架。
 navigation: false
 hero:
   title: 'Malagu Framework'
