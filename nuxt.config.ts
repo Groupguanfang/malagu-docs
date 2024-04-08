@@ -11,7 +11,7 @@ export default defineNuxtConfig({
     },
   },
   ui: {
-    icons: ["heroicons", "simple-icons", "mdi", "ph", "tabler", "fluent", "carbon", "eos-icons", "lucide", "streamline", "ant-design"],
+    icons: ["heroicons", "simple-icons", "mdi", "ph", "tabler", "fluent", "carbon", "eos-icons", "lucide", "streamline", "ant-design", "clarity"],
   },
   uiPro: {
     license: "oss",

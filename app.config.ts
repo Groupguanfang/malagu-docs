@@ -70,12 +70,6 @@ export default defineAppConfig({
           target: "_blank",
         },
         {
-          icon: "i-simple-icons-tencentqq",
-          label: "加入QQ群",
-          to: "https://qm.qq.com/cgi-bin/qm/qr?k=DoAe0V5Zz3vzn31b1YjEd1WfwFjf7A70&authKey=gZpkj30DDWF/qJII/+cRFh38135do7jZvYbG1fngcLgaD3lB1IVxdhUMRrgTe0iK&noverify=0",
-          target: "_blank",
-        },
-        {
           icon: "i-simple-icons-wechat",
           label: "加入微信群",
           to: "https://work.weixin.qq.com/gm/1dc8c0da2260edc740dd27532406e3b4",
