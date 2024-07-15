@@ -13,6 +13,17 @@ if (!page.value) {
   throw createError({ statusCode: 404, statusMessage: 'Page not found', fatal: true })
 }
 
+onMounted(() => {
+  if (!globalThis.window) return
+  if (!page.value) return
+  if (page.value.redirect) {
+    open(page.value.redirect, page.value.target || '_self')
+  }
+
+  if (page.value.target === '_blank')
+    window.history.back()
+})
+
 const { data: surround } = await useAsyncData(`${route.path}-surround`, () => queryContent()
   .where({ _extension: 'md', navigation: { $ne: false } })
   .only(['title', 'description', '_path'])
