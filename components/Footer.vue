@@ -1,9 +1,19 @@
 <script setup lang="ts">
+import type { FooterLink } from "#ui-pro/types"
+
 const { footer } = useAppConfig()
+
+const links: FooterLink[] = [
+  {
+    label: '旧版文档',
+    click: () => open('https://malagu.cellbang.com/', '_blank'),
+    target: '_blank'
+  }
+]
 </script>
 
 <template>
-  <UFooter>
+  <UFooter :links="links">
     <template #left>
       {{ footer.credits }}
     </template>

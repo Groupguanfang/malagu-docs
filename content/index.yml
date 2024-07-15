@@ -21,10 +21,6 @@ hero:
       color: gray
       to: https://github.com/cellbang/malagu
       target: _blank
-  code: |
-    ```bash [Terminal]
-    npm i -g @malagu/cli && malagu init -o my-app
-    ```
 features:
   title: 为什么选择 Malagu
   # links:

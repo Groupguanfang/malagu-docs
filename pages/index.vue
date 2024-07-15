@@ -11,6 +11,8 @@ useSeoMeta({
   description: page.value.description,
   ogDescription: page.value.description,
 });
+
+const open = (url: string) => window.open(url)
 </script>
 
 <template>
@@ -32,7 +34,6 @@ useSeoMeta({
       <!-- <MDC :value="page.hero.code" tag="pre" class="prose prose-primary dark:prose-invert mx-auto" /> -->
     </ULandingHero>
 
-    <!--
     <ULandingSection :title="page.features.title" :links="page.features.links">
       <UPageGrid>
         <ULandingCard v-for="(item, index) of page.features.items" :key="index" v-bind="item" />
@@ -69,6 +70,5 @@ useSeoMeta({
         </div>
       </div>
     </ULandingSection>
-    -->
   </div>
 </template>
