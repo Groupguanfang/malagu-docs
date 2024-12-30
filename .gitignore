@@ -26,3 +26,5 @@ logs
 # VSC
 .history
 .vercel
+
+*.zip
