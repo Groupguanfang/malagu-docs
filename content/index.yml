@@ -1,8 +1,8 @@
-title: 'Malagu - 基于 TypeScript 的 Serverless First、组件化、平台无关的渐进式应用框架'
-description: Malagu是一个基于 TypeScript 的 Serverless First、组件化、平台无关的渐进式应用框架，适配阿里云、腾讯云、AWS Lambda、Vercel等平台，支持渐进式的应用开发，同时无缝集成各大Web框架。
+title: 'Cell - 基于 TypeScript 的 Serverless First、组件化、平台无关的渐进式应用框架'
+description: Cell是一个基于 TypeScript 的 Serverless First、组件化、平台无关的渐进式应用框架，适配阿里云、腾讯云、AWS Lambda、Vercel等平台，支持渐进式的应用开发，同时无缝集成各大Web框架。
 navigation: false
 hero:
-  title: 'Malagu Framework'
+  title: 'Cell Framework'
   description: '基于 TypeScript 的 Serverless First、组件化、平台无关的渐进式应用框架'
   orientation: horizontal
   # headline:
@@ -19,10 +19,10 @@ hero:
       icon: i-simple-icons-github
       size: lg
       color: gray
-      to: https://github.com/cellbang/malagu
+      to: https://github.com/cellbang/cell
       target: _blank
 features:
-  title: 为什么选择 Malagu
+  title: 为什么选择 Cell
   # links:
   #   - label: 'Serverless First'
   #     icon: 'i-simple-icons-nuxtdotjs'
@@ -38,7 +38,7 @@ features:
       # to: 'https://nuxt.com'
       # target: '_blank'
     - title: '组件化 + 模块化'
-      description: '在 Malagu 的世界里“一切皆组件”。多个组件组合成一个模块，一个或多个模块组合成一个应用。'
+      description: '在 Cell 的世界里“一切皆组件”。多个组件组合成一个模块，一个或多个模块组合成一个应用。'
       icon: 'i-mdi-grid'
       # to: 'https://content.nuxt.com'
       # target: '_blank'

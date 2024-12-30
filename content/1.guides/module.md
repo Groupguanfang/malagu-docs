@@ -1,30 +1,30 @@
 ---
-title: Malagu 模块
+title: Cell.js 模块
 icon: i-mdi-puzzle-outline
-description: Malagu 的应用是由 Malagu 组件组成，而组件又是由多个模块组成。Malagu 组件中通过装饰器可以把类对象注入到 IoC 容器里被托管，其实这样还是不够的，我们还需要在模块中注册一下，只有注册过的类才会把对象注入到容器中。
+description: Cell.js 的应用是由 Cell.js 组件组成，而组件又是由多个模块组成。Cell.js 组件中通过装饰器可以把类对象注入到 IoC 容器里被托管，其实这样还是不够的，我们还需要在模块中注册一下，只有注册过的类才会把对象注入到容器中。
 ---
 
-换而言之，IoC 容器是由多个模块组成，Malagu 框架会将来自不同组件的模块组装成 IoC 容器。
+换而言之，IoC 容器是由多个模块组成，Cell.js 框架会将来自不同组件的模块组装成 IoC 容器。
 
 ## 模块定义
 
-Malagu 框架底层使用的是 [InversifyJS](https://github.com/inversify/InversifyJS)，所以 Malagu 的模块就是 `InversifyJS` 里面的容器模块，模块定义如下：
+Cell.js 框架底层使用的是 [InversifyJS](https://github.com/inversify/InversifyJS)，所以 Cell.js 的模块就是 `InversifyJS` 里面的容器模块，模块定义如下：
 
 ```typescript
 // module.ts
-import { autoBind } from "@malagu/core"; // autoBind 将需要注入的对象注入到模块中，并返回该模块
+import { autoBind } from "@celljs/core"; // autoBind 将需要注入的对象注入到模块中，并返回该模块
 import "."; // 告诉 autoBind 把当前目录下的所有需要注入的类对象注入到模块
 
-export default autoBind(); // 如果需要 Malagu CLI 自动加载模块，请把模块对象导出为默认
+export default autoBind(); // 如果需要 Cell.js CLI 自动加载模块，请把模块对象导出为默认
 ```
 
-模块最主要的作用是注入对象的隔离和分类管理。Malagu 组件可能有多个模块，如`前端模块`、`后端模块`和`通用模块`，也可以是任意场景下的模块。
+模块最主要的作用是注入对象的隔离和分类管理。Cell.js 组件可能有多个模块，如`前端模块`、`后端模块`和`通用模块`，也可以是任意场景下的模块。
 
-模块可以手动加载，也可以由`Malagu CLI`自动加载。前端模块会聚合到一起形成前端 IoC 容器，后端模块会聚合到一起形成后端 IoC 容器，前后端之间的模块是`隔离`的，不会混在一起。
+模块可以手动加载，也可以由`Cell.js CLI`自动加载。前端模块会聚合到一起形成前端 IoC 容器，后端模块会聚合到一起形成后端 IoC 容器，前后端之间的模块是`隔离`的，不会混在一起。
 
 ## 模块加载规则
 
-大部分情况，模块是由 Malagu CLI 来加载，Malagu CLI 有默认加载规则：
+大部分情况，模块是由 Cell.js CLI 来加载，Cell.js CLI 有默认加载规则：
 
 ### 前后端公共模块默认加载规则
 
@@ -62,10 +62,10 @@ export default autoBind(); // 如果需要 Malagu CLI 自动加载模块，请�
 
 ### 自定义规则
 
-我们也可以使用`malagu.yml`来自定义加载规则：
+我们也可以使用`cell.yml`来自定义加载规则：
 
 ```yml
-# malagu.yml
+# cell.yml
 # 前后端应用都会加载的模块
 modules:
  - lib/xxx-module
@@ -87,7 +87,7 @@ modules:
 与 modules 作用几乎一样，是组件模块入口文件，相对而言， modules 定义的是动态模块，当多个动态模块依赖一个某个公共的动态模块，Webpack 会将该公共的动态模块在被依赖的每一个动态模块中都会打包一份，这样可能导致整体打包太大。此时我们可以把公共的模块配置为静态模块，这样，其他动态模块就会共享一份打包代码了。
 
 ```yml
-# malagu.yml
+# cell.yml
 # 前后端应用都会加载的模块
 staticModules:
   - lib/xxx-module

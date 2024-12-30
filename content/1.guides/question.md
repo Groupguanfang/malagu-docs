@@ -1,7 +1,7 @@
 ---
 title: 常见问题
 icon: i-ph-question
-description: 关于Malagu项目的一些常见问题。
+description: 关于Cell.js项目的一些常见问题。
 ---
 
 ## 如何配置以 @/xxx 风格来导入依赖包
@@ -17,10 +17,10 @@ description: 关于Malagu项目的一些常见问题。
 }
 ```
 
-在 malagu.yml 中配置如下参数:
+在 cell.yml 中配置如下参数:
 
 ```yml
-// malagu.yml
+// cell.yml
 webpack:
   config:
     resolve:
@@ -30,12 +30,12 @@ webpack:
 
 ## 在打包时 Webpack 报错 Module not found
 
-以 Knex 为例，如下图所示，可以在众多的数据库依赖中选择合适的，但是此时在 Malagu 中直接打包，会提示 Module not found 错误，需要我们手动配置下 Webpack 打包时排除的依赖:
+以 Knex 为例，如下图所示，可以在众多的数据库依赖中选择合适的，但是此时在 Cell.js 中直接打包，会提示 Module not found 错误，需要我们手动配置下 Webpack 打包时排除的依赖:
 
 ```yml
-// malagu.yml
+// cell.yml
 backend:
-  malagu:
+  cell:
     includeModules: true
     webpack:
       config:

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { NavItem } from '@nuxt/content/dist/runtime/types'
-import Malagu from "@/assets/malagu.svg"
+import Cell from "@/assets/malagu.svg"
 
 const navigation = inject<NavItem[]>('navigation', [])
 
@@ -15,8 +15,8 @@ const { header } = useAppConfig()
       </template>
       <template v-else>
         <div class="flex justify-center items-center gap-2">
-          <img class="max-h-7" :src="Malagu" alt="malagu logo" />
-          <span>Malagu</span>
+          <img class="max-h-7" :src="Cell" alt="malagu logo" />
+          <span>Cell</span>
          <UBadge label="Alpha" variant="subtle" />
         </div>
       </template>

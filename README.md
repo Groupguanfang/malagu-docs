@@ -1,8 +1,8 @@
-# Malagu docs
+# Cell docs
 
 [中文](./README-zh.md) | English
 
-Malagu's documentation is particularly messy, so I made a brand new Malagu documentation. Click to open: [malagu.naily.cc](https://malagu.naily.cc).
+Cell's documentation is particularly messy, so I made a brand new Cell documentation. Click to open: [cell.naily.cc](https://cell.naily.cc).
 
-- Malagu official repository: [https://github.com/cellbang/malagu](https://github.com/cellbang/malagu)
-- Malagu old documentation: [https://malagu.cellbang.com](https://malagu.cellbang.com)
+- Cell official repository: [https://github.com/cellbang/cell](https://github.com/cellbang/cell)
+- Cell old documentation: [https://cell.cellbang.com](https://cell.cellbang.com)

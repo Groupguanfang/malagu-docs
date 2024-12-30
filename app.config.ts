@@ -10,7 +10,7 @@ export default defineAppConfig({
     },
   },
   seo: {
-    siteName: "Malagu - 企业级应用开发框架",
+    siteName: "Cell - 企业级应用开发框架",
   },
   header: {
     logo: {
@@ -23,7 +23,7 @@ export default defineAppConfig({
     links: [
       {
         icon: "i-simple-icons-github",
-        to: "https://github.com/cellbang/malagu",
+        to: "https://github.com/cellbang/cell",
         target: "_blank",
         "aria-label": "Docs template on GitHub",
       },
@@ -35,9 +35,9 @@ export default defineAppConfig({
     links: [
       {
         icon: "i-simple-icons-github",
-        to: "https://github.com/cellbang/malagu",
+        to: "https://github.com/cellbang/",
         target: "_blank",
-        "aria-label": "Malagu on GitHub",
+        "aria-label": "Cell on GitHub",
       },
     ],
   },
@@ -60,7 +60,7 @@ export default defineAppConfig({
         {
           icon: "i-simple-icons-github",
           label: "GitHub",
-          to: "https://github.com/cellbang/malagu",
+          to: "https://github.com/cellbang/cell",
           target: "_blank",
         },
         {

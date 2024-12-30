@@ -1,14 +1,14 @@
 ---
 title: 缓存
 icon: i-ph-rocket-launch
-description: Malagu 框架通过集成 cache-manager 库实现的缓存，让缓存更加简单、与业务代码解耦。
+description: Cell.js 框架通过集成 cache-manager 库实现的缓存，让缓存更加简单、与业务代码解耦。
 ---
 
-合理使用缓存可以让应用更高效，承受更大的并发量，减少响应时间。Malagu 框架基于[`cache-manager`](https://www.npmjs.com/package/cache-manager)实现了一个开箱即用的组件： `@malagu/cache`。拥有 `cache-manager` 丰富的缓存存储引擎，如 redis、fs、mongodb、mongoose、memcached 等等，当然，我们还可以自定义存储引擎。另外，我们也可以根据不同的业务场景，同时使用不同类型的存储引擎。
+合理使用缓存可以让应用更高效，承受更大的并发量，减少响应时间。Cell.js 框架基于[`cache-manager`](https://www.npmjs.com/package/cache-manager)实现了一个开箱即用的组件： `@celljs/cache`。拥有 `cache-manager` 丰富的缓存存储引擎，如 redis、fs、mongodb、mongoose、memcached 等等，当然，我们还可以自定义存储引擎。另外，我们也可以根据不同的业务场景，同时使用不同类型的存储引擎。
 
 ## 存储引擎支持列表
 
-`@malagu/cache`组件默认提供基于内存的存储引擎（也可以使用配置文件修改默认的存储引擎类型），如果需要使用他类型的存储引擎，请在项目中自行安装需要的引擎：
+`@celljs/cache`组件默认提供基于内存的存储引擎（也可以使用配置文件修改默认的存储引擎类型），如果需要使用他类型的存储引擎，请在项目中自行安装需要的引擎：
 
 - [node-cache-manager-redis-store](https://github.com/dabroek/node-cache-manager-redis-store) (uses [node_redis](https://github.com/NodeRedis/node_redis))
 - [node-cache-manager-ioredis](https://github.com/dabroek/node-cache-manager-ioredis) (uses [ioredis](https://github.com/luin/ioredis))
@@ -24,8 +24,8 @@ description: Malagu 框架通过集成 cache-manager 库实现的缓存，让缓
 ## 使用默认缓存管理器
 
 ```typescript
-import { Component, Autowired, Named } from "@malagu/core";
-import { CacheManager, DEFAULT_CACHE_MANAGER } from "@malagu/cache";
+import { Component, Autowired, Named } from "@celljs/core";
+import { CacheManager, DEFAULT_CACHE_MANAGER } from "@celljs/cache";
 
 @Component()
 export class A {
@@ -42,7 +42,7 @@ export class A {
 **默认缓存管理器的默认配置如下：**
 
 ```yaml
-malagu:
+cell:
   cache:
     config:
       default:
@@ -51,11 +51,11 @@ malagu:
         ttl: 3600 # seconds
 ```
 
-像 store、max 等等配置项说明，请参考 [cache-manager](https://www.npmjs.com/package/cache-manager) 相关的文档。我们也可以通过组件属性覆盖该默认配置。其中 `default`  为缓存管理器的名字。Malagu 框架使用这个名字，以及名字对应的配置创建缓存管理对象，并托管到 IoC 容器中。所以，我们要使用缓存管理器对象，只需要通过 `@Autowired`  和 `@Named`  自动注入我们需要的缓存管理对象即可。如下：
+像 store、max 等等配置项说明，请参考 [cache-manager](https://www.npmjs.com/package/cache-manager) 相关的文档。我们也可以通过组件属性覆盖该默认配置。其中 `default`  为缓存管理器的名字。Cell.js 框架使用这个名字，以及名字对应的配置创建缓存管理对象，并托管到 IoC 容器中。所以，我们要使用缓存管理器对象，只需要通过 `@Autowired`  和 `@Named`  自动注入我们需要的缓存管理对象即可。如下：
 
 ```typescript
-import { Component, Autowired, Named } from "@malagu/core";
-import { CacheManager, DEFAULT_CACHE_MANAGER } from "@malagu/cache";
+import { Component, Autowired, Named } from "@celljs/core";
+import { CacheManager, DEFAULT_CACHE_MANAGER } from "@celljs/cache";
 
 @Component()
 export class A {
@@ -70,7 +70,7 @@ export class A {
 我们只需要在配置文件中声明并配置自定义缓存管理器即可。配置方式如下：
 
 ```yaml
-malagu:
+cell:
   cache:
     config:
       foo:
@@ -82,8 +82,8 @@ malagu:
 声明并配置好后，我们就可以在业务类中使用配置好的自定义缓存管理器了，如下：
 
 ```typescript
-import { Component, Autowired, Named } from "@malagu/core";
-import { CacheManager } from "@malagu/cache";
+import { Component, Autowired, Named } from "@celljs/core";
+import { CacheManager } from "@celljs/cache";
 
 @Component()
 export class A {
@@ -104,7 +104,7 @@ yarn add node-cache-manager-ioredis # npm i node-cache-manager-ioredis
 这里选择 [node-cache-manager-ioredis](https://github.com/dabroek/node-cache-manager-ioredis)存储引擎，我们也可以选择其他类型的 redis 存储引擎。安装完后需要配置相关缓存配置属性：
 
 ```yaml
-malagu:
+cell:
   cache:
     config:
     	redis1:
@@ -133,8 +133,8 @@ malagu:
 ​
 
 ```typescript
-import { Component, Autowired, Named } from "@malagu/core";
-import { CacheManager } from "@malagu/cache";
+import { Component, Autowired, Named } from "@celljs/core";
+import { CacheManager } from "@celljs/cache";
 
 @Component()
 export class A {
